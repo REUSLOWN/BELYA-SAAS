@@ -10,30 +10,28 @@
  */
 
 /*
- * À REMPLACER par le vrai numéro avant mise en ligne, au format international
- * sans le « + » ni espaces. Exemple : '2250700000000'.
- */
-export const WHATSAPP_NUMERO = ''
-
-/*
- * BASCULE VERS LE VRAI PAIEMENT.
+ * PAIEMENT DIRECT — AUCUN CONTACT PAR WHATSAPP.
  *
- * Le cahier (section 11) est explicite : le RCCM bloque la phase G
- * (encaissement). Aucun agrégateur — CinetPay, PayDunya, kkiaPay, Wave —
- * n'ouvre de compte marchand sans registre de commerce, pièce du gérant
- * et RIB. Les quatre wallets ci-dessous se règlent donc par un agrégateur,
- * jamais en direct.
+ * Un clic sur un portefeuille envoie la cliente droit au règlement.
+ * Deux façons de renseigner la destination, par ordre de priorité :
  *
- * Tant que cette constante est vide, le choix du wallet part sur WhatsApp.
- * Dès qu'elle porte l'URL de checkout de l'agrégateur, le bouton y va
- * directement, avec l'offre et le wallet en paramètres.
+ *   1. `lien` sur le portefeuille — une URL de paiement propre à
+ *      l'opérateur. Seul Wave en délivre une sans intermédiaire, via un
+ *      compte Wave Business (https://pay.wave.com/m/<id>/c/ci/).
+ *      Orange Money et MTN MoMo exigent un contrat marchand et une API ;
+ *      Moov Money ne fonctionne qu'en USSD. Aucun des trois n'a de lien
+ *      public : laisse leur `lien` vide et passe par CHECKOUT_URL.
+ *
+ *   2. CHECKOUT_URL — l'URL de caisse d'un agrégateur (CinetPay,
+ *      PayDunya, kkiaPay). UN SEUL compte couvre les quatre portefeuilles.
+ *      Le portefeuille choisi part en paramètre `wallet`, avec l'offre et
+ *      le montant, pour que la caisse s'ouvre déjà sur le bon opérateur.
+ *
+ * Prérequis commun, rappelé par le cahier (section 11) : RCCM, pièce du
+ * gérant et RIB. Tant que rien n'est renseigné, les boutons se présentent
+ * comme indisponibles au lieu de mener dans le vide.
  */
 export const CHECKOUT_URL = ''
-
-export function lienWhatsApp(message) {
-  const base = WHATSAPP_NUMERO ? `https://wa.me/${WHATSAPP_NUMERO}` : 'https://wa.me/'
-  return `${base}?text=${encodeURIComponent(message)}`
-}
 
 /*
  * Les quatre portefeuilles mobiles de Côte d'Ivoire.
@@ -42,24 +40,38 @@ export function lienWhatsApp(message) {
  * déposées, leur usage demande leur kit de marque).
  */
 export const PAIEMENTS = [
-  { id: 'orange', nom: 'Orange Money', sigle: 'OM', fond: '#FF7900', texte: '#1A1420' },
-  { id: 'mtn', nom: 'MTN MoMo', sigle: 'MTN', fond: '#FFCC00', texte: '#1A1420' },
-  { id: 'moov', nom: 'Moov Money', sigle: 'MOOV', fond: '#004E9F', texte: '#FAF6F4' },
-  { id: 'wave', nom: 'Wave', sigle: 'WAVE', fond: '#1DC3F3', texte: '#1A1420' },
+  { id: 'orange', nom: 'Orange Money', sigle: 'OM', fond: '#FF7900', texte: '#1A1420', lien: '' },
+  { id: 'mtn', nom: 'MTN MoMo', sigle: 'MTN', fond: '#FFCC00', texte: '#1A1420', lien: '' },
+  { id: 'moov', nom: 'Moov Money', sigle: 'MOOV', fond: '#004E9F', texte: '#FAF6F4', lien: '' },
+  { id: 'wave', nom: 'Wave', sigle: 'WAVE', fond: '#1DC3F3', texte: '#1A1420', lien: '' },
 ]
+
+/** Destination de règlement pour un portefeuille, ou null si rien n'est configuré. */
+export function lienPaiement(moyen, offre) {
+  if (moyen.lien) return moyen.lien
+
+  if (CHECKOUT_URL) {
+    const separateur = CHECKOUT_URL.includes('?') ? '&' : '?'
+    return (
+      `${CHECKOUT_URL}${separateur}wallet=${encodeURIComponent(moyen.id)}` +
+      `&offre=${encodeURIComponent(offre.nom)}&montant=${offre.mensuel}`
+    )
+  }
+
+  return null
+}
 
 /* Libellé du bouton des cartes Tarifs. */
 export const CTA_TARIF = 'Activer mon compte'
 
 export const ACTIVATION = {
   titre: 'Activer votre compte Belya',
-  etape1: 'Choisissez votre moyen de paiement',
+  etape1: 'Payez avec votre portefeuille mobile',
   libelleMontant: 'Montant à régler',
   rappel:
     'Crédit prépayé : le compte se décompte au prorata des jours ouverts. Aucun prélèvement automatique, vous rechargez quand vous voulez.',
-  mention: 'Le règlement passe par un agrégateur agréé — CinetPay, PayDunya, kkiaPay ou Wave.',
-  bouton: 'Continuer sur WhatsApp',
-  boutonCheckout: 'Payer maintenant',
+  mention: 'Vous êtes redirigé vers votre opérateur pour finaliser le règlement.',
+  indisponible: 'Paiement en ligne bientôt disponible.',
 }
 
 /*
@@ -289,7 +301,7 @@ export const PIED = {
     },
     {
       titre: 'Contact',
-      liens: ['WhatsApp', 'Activer mon compte', 'Presse', 'Partenariats'],
+      liens: ['Activer mon compte', 'Tarifs', 'Presse', 'Partenariats'],
     },
   ],
   legal: ['Conditions générales', 'Confidentialité', 'Mentions légales'],

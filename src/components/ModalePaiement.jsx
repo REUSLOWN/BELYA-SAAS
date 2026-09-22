@@ -1,19 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
-import { ArrowRight, Check, X } from 'lucide-react'
-import { ACTIVATION, CHECKOUT_URL, PAIEMENTS, fcfa, lienWhatsApp } from '../donnees'
-import Bouton from './Bouton'
+import { ArrowUpRight, X } from 'lucide-react'
+import { ACTIVATION, PAIEMENTS, fcfa, lienPaiement } from '../donnees'
 
 /*
- * Choix du portefeuille mobile puis règlement immédiat de l'offre.
+ * Règlement direct. Un clic sur un portefeuille ouvre la page de paiement
+ * de l'opérateur — aucun passage par WhatsApp, aucun contact préalable.
  *
- * Tant que CHECKOUT_URL est vide — c'est-à-dire tant que le RCCM et le compte
- * marchand agrégateur ne sont pas ouverts (cahier, section 11, phase G) — le
- * choix part sur WhatsApp avec l'offre, le montant et le wallet pré-remplis.
- * Dès que la constante porte une URL, le même bouton va au checkout.
+ * La destination vient de `lienPaiement()` : le lien propre au portefeuille
+ * s'il existe, sinon la caisse de l'agrégateur avec l'opérateur pré-choisi.
+ * Si rien n'est configuré, le portefeuille s'affiche comme indisponible
+ * plutôt que de mener dans le vide.
  */
 export default function ModalePaiement({ offre, onFermer }) {
-  const [choisi, setChoisi] = useState(null)
   const racine = useRef(null)
   const boutonFermer = useRef(null)
   const focusPrecedent = useRef(null)
@@ -50,24 +49,12 @@ export default function ModalePaiement({ offre, onFermer }) {
     }
   }, [onFermer])
 
-  const wallet = PAIEMENTS.find((p) => p.id === choisi)
-
-  const partir = () => {
-    if (!wallet) return
-
-    const destination = CHECKOUT_URL
-      ? `${CHECKOUT_URL}${CHECKOUT_URL.includes('?') ? '&' : '?'}offre=${encodeURIComponent(
-          offre.nom,
-        )}&wallet=${encodeURIComponent(wallet.id)}`
-      : lienWhatsApp(
-          `Bonjour, je souhaite activer mon compte Belya.\n` +
-            `Offre : ${offre.nom} (${offre.cible}).\n` +
-            `Montant à régler : ${fcfa(offre.mensuel)} pour le premier mois.\n` +
-            `Moyen de paiement : ${wallet.nom}.`,
-        )
-
-    window.open(destination, '_blank', 'noopener,noreferrer')
+  const regler = (moyen) => {
+    const destination = lienPaiement(moyen, offre)
+    if (destination) window.open(destination, '_blank', 'noopener,noreferrer')
   }
+
+  const aucunMoyen = PAIEMENTS.every((moyen) => !lienPaiement(moyen, offre))
 
   return (
     <div
@@ -115,9 +102,7 @@ export default function ModalePaiement({ offre, onFermer }) {
             <span className="text-[2.1rem] font-extrabold tabular-nums tracking-tresserre text-encre">
               {fcfa(offre.mensuel)}
             </span>
-            <span className="legende text-encre/65">
-              pour le premier mois · {offre.cible}
-            </span>
+            <span className="legende text-encre/65">pour le premier mois · {offre.cible}</span>
           </p>
         </div>
 
@@ -127,19 +112,25 @@ export default function ModalePaiement({ offre, onFermer }) {
 
         <p className="micro mt-7 text-aubergine">{ACTIVATION.etape1}</p>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {PAIEMENTS.map((moyen) => {
-            const actif = choisi === moyen.id
+            const actif = Boolean(lienPaiement(moyen, offre))
+
             return (
               <button
                 key={moyen.id}
                 data-wallet
-                onClick={() => setChoisi(moyen.id)}
-                aria-pressed={actif}
-                className={`magnetique relative flex items-center gap-3 rounded-[1.25rem] border p-3.5 text-left transition-colors duration-300 ${
+                onClick={() => regler(moyen)}
+                disabled={!actif}
+                aria-label={
                   actif
-                    ? 'border-magenta bg-white shadow-[0_10px_30px_-18px_rgba(26,20,32,0.5)] ring-2 ring-magenta'
-                    : 'border-encre/12 bg-white/60 hover:border-encre/25'
+                    ? `Payer ${fcfa(offre.mensuel)} avec ${moyen.nom}`
+                    : `${moyen.nom} — indisponible`
+                }
+                className={`group relative flex items-center gap-3 rounded-[1.25rem] border p-3.5 text-left transition-all duration-300 ${
+                  actif
+                    ? 'magnetique border-encre/12 bg-white/70 hover:border-magenta hover:shadow-[0_10px_30px_-18px_rgba(26,20,32,0.5)]'
+                    : 'cursor-not-allowed border-encre/10 bg-white/30 opacity-50'
                 }`}
               >
                 <span
@@ -155,27 +146,21 @@ export default function ModalePaiement({ offre, onFermer }) {
                 </span>
 
                 {actif && (
-                  <Check size={16} strokeWidth={3} className="shrink-0 text-magenta" aria-hidden="true" />
+                  <ArrowUpRight
+                    size={17}
+                    strokeWidth={2.5}
+                    className="shrink-0 text-encre/35 transition-colors duration-300 group-hover:text-magenta"
+                    aria-hidden="true"
+                  />
                 )}
               </button>
             )
           })}
         </div>
 
-        <Bouton taille="grand" className="mt-7 w-full" onClick={partir} desactive={!wallet}>
-          <span className="inline-flex items-center gap-2">
-            {CHECKOUT_URL ? ACTIVATION.boutonCheckout : ACTIVATION.bouton}
-            <ArrowRight size={16} aria-hidden="true" />
-          </span>
-        </Bouton>
-
-        {!wallet && (
-          <p className="legende mt-3 text-center text-encre/60">
-            Sélectionnez d’abord un moyen de paiement.
-          </p>
-        )}
-
-        <p className="legende mt-5 text-encre/60">{ACTIVATION.mention}</p>
+        <p className="legende mt-5 text-encre/60">
+          {aucunMoyen ? ACTIVATION.indisponible : ACTIVATION.mention}
+        </p>
       </div>
     </div>
   )
