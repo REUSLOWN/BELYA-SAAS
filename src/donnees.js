@@ -118,24 +118,85 @@ export const HERO = {
 }
 
 /*
- * Le salon de référence du cahier. Ces valeurs servent de point de départ
- * au calculateur : elles reproduisent exactement les 430 000 F/mois du document.
- */
-export const REFERENCE = {
-  postes: 3,
-  creneauxJour: 8,
-  joursOuvres: 26,
-  remplissage: 69,
-  noShow: 20,
-  ticket: 5000,
-}
-
-/*
  * Le cahier chiffre la perte résiduelle du salon à 211 300 F pour 430 000 F
  * de perte initiale, soit 50,86 % rendus vendables une fois les cinq couches
  * en place. C'est un ratio de modèle, pas une mesure terrain.
  */
 export const TAUX_RECUPERATION = 0.5086
+
+/*
+ * Trois profils en un appui.
+ *
+ * La cible tient un cahier papier et travaille sur un Android milieu de
+ * gamme : lui demander de régler six curseurs avant de voir son chiffre,
+ * c'est la perdre. Elle choisit son profil, le chiffre s'affiche, et les
+ * curseurs ne servent qu'à ceux qui veulent affiner.
+ *
+ * Le profil « Salon » reproduit exactement le salon de référence du
+ * cahier : 430 000 F de perte mensuelle.
+ */
+export const PROFILS = [
+  {
+    id: 'solo',
+    nom: 'Je travaille seule',
+    detail: 'À domicile ou un poste',
+    absencesSemaine: 1,
+    valeurs: { postes: 1, creneauxJour: 3, joursOuvres: 22, remplissage: 50, noShow: 20, ticket: 5000 },
+  },
+  {
+    id: 'salon',
+    nom: 'J’ai un salon',
+    detail: '2 à 4 postes',
+    absencesSemaine: 20,
+    valeurs: { postes: 3, creneauxJour: 8, joursOuvres: 26, remplissage: 69, noShow: 20, ticket: 5000 },
+  },
+  {
+    id: 'institut',
+    nom: 'J’ai un institut',
+    detail: '5 postes et plus',
+    absencesSemaine: 32,
+    valeurs: { postes: 5, creneauxJour: 8, joursOuvres: 26, remplissage: 70, noShow: 20, ticket: 5000 },
+  },
+]
+
+/*
+ * LE MOMENT MAGIQUE.
+ *
+ * Elle n'entre pas un modèle, elle entre ce qu'elle a déjà en tête : le
+ * nombre de clientes qui ne sont pas venues cette semaine. Elle le sait —
+ * le cahier le dit, « elle perçoit la perte, elle sait compter ses
+ * créneaux vides ».
+ *
+ * Ce qu'elle n'a jamais calculé, c'est la multiplication. Sept absences,
+ * c'est un agacement. Sept absences par semaine pendant un an, c'est
+ * 1 820 000 F. L'écart entre les deux, c'est l'aha.
+ *
+ * L'offre se place immédiatement après, dans le même bloc — pas quatre
+ * sections plus bas.
+ */
+export const SEMAINES_PAR_MOIS = 52 / 12
+
+export const AHA = {
+  micro: 'Le moment où ça devient concret',
+  titreSans: 'Cette semaine, combien de clientes',
+  titreSerif: 'ne sont pas venues ?',
+  aide: 'Le chiffre que vous avez déjà en tête. Pas besoin de le chercher.',
+  compteurLibelle: 'Rendez-vous perdus cette semaine',
+  ticketLibelle: 'Votre prestation moyenne',
+  ticketsRapides: [3000, 5000, 10000, 15000],
+  lignes: { semaine: 'Cette semaine', mois: 'Ce mois-ci', annee: 'Sur une année' },
+  revelation: 'Sur une année',
+  recuperation: 'Ce que Belya rend vendable',
+  cta: 'Activer mon compte',
+  note: 'Le seuil de rentabilité tient en trois créneaux sauvés par mois.',
+}
+
+export const REGLAGES = {
+  invite: 'Quel est votre établissement ?',
+  ouvrir: 'Ajuster mes chiffres',
+  fermer: 'Masquer les réglages',
+  aide: 'Pas besoin d’y toucher : choisissez simplement votre profil au-dessus.',
+}
 
 export const ARGUMENTS = {
   listeAttente: {
