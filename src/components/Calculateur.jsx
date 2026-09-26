@@ -5,11 +5,12 @@ import {
   AHA,
   PROFILS,
   REGLAGES,
-  SEMAINES_PAR_MOIS,
   TARIFS,
-  TAUX_RECUPERATION,
   fcfa,
+  formatRoi,
   nombre,
+  noteSeuil,
+  potentiel,
 } from '../donnees'
 import Bouton from './Bouton'
 import ModalePaiement from './ModalePaiement'
@@ -118,22 +119,31 @@ export default function Calculateur() {
    */
   const calcul = useMemo(() => {
     const { ticket, postes } = valeurs
-    const semaine = absences * ticket
-    const annee = semaine * 52
     const offre = postes <= 1 ? TARIFS[0] : postes <= 4 ? TARIFS[1] : TARIFS[2]
-    const recuperableAn = annee * TAUX_RECUPERATION
+    const p = potentiel(absences, ticket, offre.mensuel)
 
     return {
-      semaine,
-      mois: semaine * SEMAINES_PAR_MOIS,
-      annee,
-      recuperableAn,
-      recuperableMois: (recuperableAn / 12),
-      creneauxSauves: Math.round(absences * TAUX_RECUPERATION),
+      semaine: p.perteSemaine,
+      mois: p.perteMois,
+      annee: p.perteAn,
+      recuperableAn: p.recuperableAn,
+      creneauxSauves: p.creneauxSemaine,
       offre,
-      roi: offre.mensuel > 0 ? recuperableAn / 12 / offre.mensuel : 0,
+      roi: p.roi,
+      note: noteSeuil(offre.mensuel, ticket),
     }
   }, [absences, valeurs])
+
+  /*
+   * Jamais d'arrondi qui gonfle la promesse : sous 4 absences, 0,5 créneau
+   * arrondi à 1 doublerait l'estimation. On parle alors de proportion.
+   */
+  const phraseRecuperation = (() => {
+    if (absences === 0) return 'Aucun créneau perdu cette semaine : rien à récupérer.'
+    const perdus = `Sur ${absences} créneau${absences > 1 ? 'x' : ''} perdu${absences > 1 ? 's' : ''} par semaine`
+    if (absences < 4) return `${perdus}, Belya vise à en rendre 1 sur 2 vendable.`
+    return `${perdus}, Belya peut en rendre environ ${Math.round(calcul.creneauxSauves)} vendables.`
+  })()
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -149,7 +159,7 @@ export default function Calculateur() {
     return () => ctx.revert()
   }, [])
 
-  const roiTexte = `${calcul.roi.toFixed(1).replace('.', ',')}×`
+  const roiTexte = formatRoi(calcul.roi)
 
   return (
     <section
@@ -343,11 +353,7 @@ export default function Calculateur() {
                   <Compteur valeur={calcul.recuperableAn} format={fcfa} />
                   <span className="legende ml-2 font-normal text-creme/65">par an</span>
                 </p>
-                <p className="legende mt-2 text-creme/70">
-                  Sur {absences} créneau{absences > 1 ? 'x' : ''} perdu
-                  {absences > 1 ? 's' : ''} par semaine, Belya en rend {calcul.creneauxSauves}{' '}
-                  vendable{calcul.creneauxSauves > 1 ? 's' : ''}.
-                </p>
+                <p className="legende mt-2 text-creme/70">{phraseRecuperation}</p>
               </div>
             </div>
 
@@ -368,7 +374,7 @@ export default function Calculateur() {
                 {AHA.cta}
               </Bouton>
 
-              <p className="legende mt-3 text-creme/60">{AHA.note}</p>
+              <p className="legende mt-3 text-creme/60">{calcul.note}</p>
             </div>
           </div>
         </div>

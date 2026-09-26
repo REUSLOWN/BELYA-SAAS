@@ -75,13 +75,9 @@ export const ACTIVATION = {
 }
 
 /*
- * Le héros n'a plus d'image : fond crème, conformément à la direction
- * Tech Organique. Seule reste la texture du manifeste, en lazy et à 9 %
- * d'opacité, servie en 1200 px.
+ * Aucune image externe : la texture Unsplash du manifeste pesait 266 Ko pour
+ * un affichage à 9 % d'opacité. Le grain CSS (.grain) suffit.
  */
-export const IMAGES = {
-  texture: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=70',
-}
 
 /** 430000 → « 430 000 F » (espace fine insécable normalisée en espace simple). */
 export function fcfa(n) {
@@ -111,8 +107,13 @@ export const HERO = {
   titreSans: 'Le créneau vide est le',
   titreSerif: 'vrai coût.',
   chapo:
-    "430 000 F s'évaporent chaque mois d'un salon de trois postes. L'objectif de Belya : en rendre la moitié vendable, sans rien exiger de vos clientes.",
-  stats: ['20 % de no-show', '86 rendez-vous manqués / mois', '5 160 000 F / an'],
+    "433 000 F s'évaporent chaque mois d'un salon de trois postes. L'objectif de Belya : en rendre la moitié vendable, sans rien installer pour vos clientes.",
+  /*
+   * Mêmes chiffres que le profil « Salon » du calculateur, pour que le visiteur
+   * retrouve exactement ce qu'il vient de lire : 20 absences × 52 / 12 = 87 par
+   * mois ; 20 × 5 000 F × 52 / 12 = 433 333 F par mois ; 5 200 000 F par an.
+   */
+  stats: ['20 % de no-show', '87 rendez-vous manqués / mois', '5 200 000 F / an'],
   cta: 'Calculer ma perte',
   ctaSecondaire: 'Voir la méthode',
 }
@@ -124,6 +125,59 @@ export const HERO = {
  */
 export const TAUX_RECUPERATION = 0.5086
 
+export const SEMAINES_PAR_MOIS = 52 / 12
+
+/*
+ * LA formule du potentiel. Calculateur, cartes Tarifs et tableau de bord la
+ * partagent : un seul endroit à modifier, aucun chiffre qui diverge.
+ *
+ *   perte / an      = absences par semaine × prestation × 52
+ *   récupérable / an = perte / an × TAUX_RECUPERATION
+ *   retour          = récupérable par mois ÷ prix mensuel de l'offre
+ */
+export function potentiel(absencesSemaine, ticket, mensuel) {
+  const perteSemaine = absencesSemaine * ticket
+  const perteAn = perteSemaine * 52
+  const recuperableAn = perteAn * TAUX_RECUPERATION
+  const recuperableMois = recuperableAn / 12
+
+  return {
+    perteSemaine,
+    perteMois: perteSemaine * SEMAINES_PAR_MOIS,
+    perteAn,
+    recuperableAn,
+    recuperableMois,
+    creneauxSemaine: absencesSemaine * TAUX_RECUPERATION,
+    creneauxMois: absencesSemaine * TAUX_RECUPERATION * SEMAINES_PAR_MOIS,
+    roi: mensuel > 0 ? recuperableMois / mensuel : 0,
+  }
+}
+
+/** 14.69 → « 14,7× » */
+export function formatRoi(roi) {
+  return `${roi.toFixed(1).replace('.', ',')}×`
+}
+
+/** Arrondi à la centaine, pour afficher un potentiel sans fausse précision. */
+export function centaine(n) {
+  return Math.round(n / 100) * 100
+}
+
+/*
+ * Seuil de rentabilité : nombre de créneaux à sauver chaque mois pour que
+ * Belya se paie. 15 000 F ÷ 5 000 F = 3 ; 3 000 F ÷ 5 000 F → 1.
+ */
+export function seuilRentabilite(mensuel, ticket) {
+  return Math.max(1, Math.ceil(mensuel / ticket))
+}
+
+export function noteSeuil(mensuel, ticket) {
+  const n = seuilRentabilite(mensuel, ticket)
+  return n === 1
+    ? 'Le seuil de rentabilité tient en un seul créneau sauvé par mois.'
+    : `Le seuil de rentabilité tient en ${n} créneaux sauvés par mois.`
+}
+
 /*
  * Trois profils en un appui.
  *
@@ -132,8 +186,9 @@ export const TAUX_RECUPERATION = 0.5086
  * c'est la perdre. Elle choisit son profil, le chiffre s'affiche, et les
  * curseurs ne servent qu'à ceux qui veulent affiner.
  *
- * Le profil « Salon » reproduit exactement le salon de référence du
- * cahier : 430 000 F de perte mensuelle.
+ * Le profil « Salon » reproduit le salon de référence du cahier : 20 absences
+ * par semaine, soit 433 333 F de perte mensuelle (le cahier arrondit à
+ * 430 000 F en partant de 86 absences par mois).
  */
 export const PROFILS = [
   {
@@ -174,8 +229,6 @@ export const PROFILS = [
  * L'offre se place immédiatement après, dans le même bloc — pas quatre
  * sections plus bas.
  */
-export const SEMAINES_PAR_MOIS = 52 / 12
-
 export const AHA = {
   micro: 'Le moment où ça devient concret',
   titreSans: 'Cette semaine, combien de clientes',
@@ -186,9 +239,9 @@ export const AHA = {
   ticketsRapides: [3000, 5000, 10000, 15000],
   lignes: { semaine: 'Cette semaine', mois: 'Ce mois-ci', annee: 'Sur une année' },
   revelation: 'Sur une année',
-  recuperation: 'Ce que Belya rend vendable',
+  recuperation: 'Ce que Belya peut rendre vendable (estimation)',
   cta: 'Activer mon compte',
-  note: 'Le seuil de rentabilité tient en trois créneaux sauvés par mois.',
+  // La note du seuil de rentabilité est calculée : voir noteSeuil().
 }
 
 export const REGLAGES = {
@@ -239,8 +292,9 @@ export const ARGUMENTS = {
     jours: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
     jourCible: 5,
     releve: [
-      { cle: 'Créneaux sauvés', valeur: '43' },
-      { cle: 'Gain du mois', valeur: '218 700 F' },
+      // Profil Salon : 20 × 0,5086 × 52 / 12 = 44 créneaux ; 44 × 5 000 F = 220 000 F.
+      { cle: 'Créneaux sauvés', valeur: '44' },
+      { cle: 'Gain du mois', valeur: '220 000 F' },
     ],
     bouton: 'Enregistrer',
   },
@@ -289,6 +343,21 @@ export const PROTOCOLE = [
   },
 ]
 
+/* Libellé de l'offre mise en avant. « Le plus vendu » attendra les premières ventes. */
+export const BADGE_OFFRE = 'Recommandé'
+
+/*
+ * Garantie premier mois, calée sur le seuil de rentabilité du calculateur.
+ */
+export const GARANTIE = {
+  titre: 'Garantie premier mois',
+  texte:
+    'Si Belya ne vous fait pas sauver assez de créneaux pour couvrir son prix le premier mois, vous êtes remboursée.',
+  detail:
+    'À 5 000 F la prestation : 1 créneau sauvé en Solo, 3 en Salon, 6 en Institut.',
+  courte: 'Garantie premier mois : remboursée si Belya ne couvre pas son prix.',
+}
+
 export const TARIFS = [
   {
     nom: 'Solo',
@@ -296,10 +365,10 @@ export const TARIFS = [
     mensuel: 3000,
     prorata: '100 F / jour ouvert',
     recharge: 'Recharge minimum 1 000 F',
-    trimestre: '8 000 F le trimestre',
-    annee: '30 000 F l’année',
-    roi: '5,1×',
-    gain: 'Potentiel calculé : 15 300 F par mois',
+    pack3: 8000,
+    pack12: 30000,
+    // Le retour et le potentiel sont calculés avec potentiel() sur ce profil.
+    profil: 'solo',
     inclus: [
       'Page de réservation publique',
       'Agenda jour et semaine',
@@ -315,10 +384,10 @@ export const TARIFS = [
     mensuel: 15000,
     prorata: '500 F / jour ouvert',
     recharge: 'Recharge minimum 2 000 F',
-    trimestre: '40 000 F le trimestre',
-    annee: '150 000 F l’année',
-    roi: '14,6×',
-    gain: 'Potentiel calculé : 218 700 F par mois',
+    pack3: 40000,
+    pack12: 150000,
+    // Le retour et le potentiel sont calculés avec potentiel() sur ce profil.
+    profil: 'salon',
     inclus: [
       'Tout ce que contient Solo',
       'Agendas multiples, un par poste',
@@ -334,10 +403,10 @@ export const TARIFS = [
     mensuel: 30000,
     prorata: '1 000 F / jour ouvert',
     recharge: 'Recharge minimum 5 000 F',
-    trimestre: '80 000 F le trimestre',
-    annee: '300 000 F l’année',
-    roi: '11,9×',
-    gain: 'Potentiel calculé : 356 000 F par mois',
+    pack3: 80000,
+    pack12: 300000,
+    // Le retour et le potentiel sont calculés avec potentiel() sur ce profil.
+    profil: 'institut',
     inclus: [
       'Tout ce que contient Salon',
       'Postes illimités',
@@ -351,19 +420,42 @@ export const TARIFS = [
 
 export const PIED = {
   slogan: 'Ne laissez plus un créneau se perdre.',
+  /*
+   * Un lien avec `ancre` fait défiler jusqu'à sa section ; sans ancre, c'est
+   * du texte simple. Aucun lien ne doit mener dans le vide.
+   */
   colonnes: [
     {
       titre: 'Le produit',
-      liens: ['Le coût du no-show', 'La méthode', 'Le protocole', 'Tarifs'],
+      liens: [
+        { libelle: 'Le coût du no-show', ancre: 'calculateur' },
+        { libelle: 'La méthode', ancre: 'methode' },
+        { libelle: 'Le protocole', ancre: 'protocole' },
+        { libelle: 'Tarifs', ancre: 'tarifs' },
+      ],
     },
     {
       titre: 'Pour qui',
-      liens: ['Salons de coiffure', 'Instituts de beauté', 'Prestataires à domicile', 'Barbiers'],
+      liens: [
+        { libelle: 'Salons de coiffure' },
+        { libelle: 'Instituts de beauté' },
+        { libelle: 'Prestataires à domicile' },
+        { libelle: 'Barbiers' },
+      ],
     },
     {
-      titre: 'Contact',
-      liens: ['Activer mon compte', 'Tarifs', 'Presse', 'Partenariats'],
+      titre: 'Commencer',
+      liens: [
+        { libelle: 'Calculer ma perte', ancre: 'calculateur' },
+        { libelle: 'Activer mon compte', ancre: 'tarifs' },
+      ],
     },
   ],
-  legal: ['Conditions générales', 'Confidentialité', 'Mentions légales'],
+  /*
+   * Pages légales : à rétablir quand elles existent (mentions légales,
+   * confidentialité — obligatoire dès qu'on stocke les numéros des clientes,
+   * loi n° 2013-450, ARTCI — et conditions générales de vente).
+   * Format : { libelle: 'Mentions légales', href: '/mentions-legales' }
+   */
+  legal: [],
 }

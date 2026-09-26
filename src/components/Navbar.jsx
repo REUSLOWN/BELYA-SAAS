@@ -68,7 +68,8 @@ export default function Navbar() {
           <button
             onClick={() => setOuvert((v) => !v)}
             aria-label={ouvert ? 'Fermer le menu' : 'Ouvrir le menu'}
-            className="lift text-encre md:hidden"
+            aria-expanded={ouvert}
+            className="lift -mr-2.5 flex h-11 w-11 items-center justify-center text-encre md:hidden"
           >
             {ouvert ? <X size={22} /> : <Menu size={22} />}
           </button>

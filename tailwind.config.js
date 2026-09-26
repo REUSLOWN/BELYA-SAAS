@@ -26,9 +26,13 @@ export default {
         titre: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
         drama: ['"Cormorant Garamond"', 'Georgia', 'serif'],
       },
+      /*
+       * À -0,04 / -0,055 em, les mots en gras se collaient sur mobile
+       * (« J'aiunsalon »). Resserré, mais les espaces restent lisibles.
+       */
       letterSpacing: {
-        serre: '-0.04em',
-        tresserre: '-0.055em',
+        serre: '-0.02em',
+        tresserre: '-0.03em',
       },
     },
   },

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ArrowUpRight, X } from 'lucide-react'
-import { ACTIVATION, PAIEMENTS, fcfa, lienPaiement } from '../donnees'
+import { ACTIVATION, GARANTIE, PAIEMENTS, fcfa, lienPaiement } from '../donnees'
 
 /*
  * Règlement direct. Un clic sur un portefeuille ouvre la page de paiement
@@ -109,6 +109,8 @@ export default function ModalePaiement({ offre, onFermer }) {
         <p className="legende mt-4 rounded-[1rem] border-l-2 border-magenta bg-aubergine/[0.07] px-4 py-3 text-encre/80">
           {ACTIVATION.rappel}
         </p>
+
+        <p className="legende mt-3 font-semibold text-encre/80">{GARANTIE.courte}</p>
 
         <p className="micro mt-7 text-aubergine">{ACTIVATION.etape1}</p>
 

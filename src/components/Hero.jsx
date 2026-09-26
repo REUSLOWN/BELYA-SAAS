@@ -21,6 +21,17 @@ export default function Hero() {
         stagger: 0.08,
         delay: 0.15,
       })
+
+      /*
+       * Titre et chapô glissent sans jamais passer par l'opacité 0 : ils sont
+       * lisibles dès le premier affichage, ce qui avance le LCP sur réseau lent.
+       */
+      gsap.from('[data-anim="texte"]', {
+        y: 24,
+        duration: 1.15,
+        ease: 'power3.out',
+        stagger: 0.08,
+      })
     }, racine)
 
     return () => ctx.revert()
@@ -40,13 +51,13 @@ export default function Hero() {
 
           <h1 className="mt-9 text-encre">
             <span
-              data-anim="entree"
+              data-anim="texte"
               className="block text-[clamp(1.5rem,4.4vw,2.9rem)] font-extrabold leading-[1.08] tracking-tresserre"
             >
               {HERO.titreSans}
             </span>
             <span
-              data-anim="entree"
+              data-anim="texte"
               className="mt-1 block font-drama text-[clamp(4.5rem,15.5vw,11rem)] italic leading-[0.82] tracking-[-0.02em] text-magenta"
             >
               {HERO.titreSerif}
@@ -54,7 +65,7 @@ export default function Hero() {
           </h1>
 
           <p
-            data-anim="entree"
+            data-anim="texte"
             className="mt-10 max-w-xl text-[1.05rem] leading-relaxed text-encre/75"
           >
             {HERO.chapo}

@@ -1,7 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
-import { Check } from 'lucide-react'
-import { CTA_TARIF, TARIFS, fcfa } from '../donnees'
+import { Check, ShieldCheck } from 'lucide-react'
+import {
+  BADGE_OFFRE,
+  CTA_TARIF,
+  GARANTIE,
+  PROFILS,
+  TARIFS,
+  centaine,
+  fcfa,
+  formatRoi,
+  potentiel,
+} from '../donnees'
+
+/* Retour et potentiel d'une offre, calculés sur son profil de référence. */
+function chiffresOffre(offre) {
+  const profil = PROFILS.find((p) => p.id === offre.profil)
+  const p = potentiel(profil.absencesSemaine, profil.valeurs.ticket, offre.mensuel)
+  return {
+    roi: formatRoi(p.roi),
+    gain: `Potentiel calculé : ${fcfa(centaine(p.recuperableMois))} par mois`,
+  }
+}
 import Bouton from './Bouton'
 import ModalePaiement from './ModalePaiement'
 
@@ -60,6 +80,7 @@ export default function Tarifs() {
         <div data-grille-tarifs className="mt-16 grid items-start gap-6 lg:grid-cols-3">
           {TARIFS.map((offre) => {
             const enAvant = offre.misEnAvant
+            const chiffres = chiffresOffre(offre)
             return (
               <article
                 key={offre.nom}
@@ -86,7 +107,7 @@ export default function Tarifs() {
 
                   {enAvant && (
                     <span className="rounded-full bg-magenta px-3 py-1 text-[13px] font-semibold text-creme">
-                      Le plus vendu
+                      {BADGE_OFFRE}
                     </span>
                   )}
                 </div>
@@ -119,11 +140,11 @@ export default function Tarifs() {
                       Retour sur dépense
                     </span>
                     <span className="rounded-full bg-magenta px-3 py-1 text-[15px] font-extrabold tabular-nums text-creme">
-                      {offre.roi}
+                      {chiffres.roi}
                     </span>
                   </div>
                   <p className={`legende mt-2 ${enAvant ? 'text-creme/75' : 'text-encre/65'}`}>
-                    {offre.gain}
+                    {chiffres.gain}
                   </p>
                 </div>
 
@@ -160,7 +181,12 @@ export default function Tarifs() {
                       enAvant ? 'text-creme/70' : 'text-encre/60'
                     }`}
                   >
-                    {offre.trimestre} · {offre.annee}
+                    {/* Montants insécables : « 90 000 F » ne doit jamais se couper. */}
+                    Pack 3 mois : <span className="whitespace-nowrap">{fcfa(offre.pack3)}</span> au lieu
+                    de <span className="whitespace-nowrap">{fcfa(offre.mensuel * 3)}</span>
+                    <br />
+                    Pack 12 mois : <span className="whitespace-nowrap">{fcfa(offre.pack12)}</span> au
+                    lieu de <span className="whitespace-nowrap">{fcfa(offre.mensuel * 12)}</span>
                   </p>
                 </div>
               </article>
@@ -168,7 +194,16 @@ export default function Tarifs() {
           })}
         </div>
 
-        <p className="micro mt-12 text-center text-aubergine">
+        <div className="mx-auto mt-12 flex max-w-3xl items-start gap-4 rounded-[1.5rem] border border-magenta/30 bg-white/60 p-6 sm:p-7">
+          <ShieldCheck size={26} strokeWidth={2} className="mt-0.5 shrink-0 text-magenta" aria-hidden="true" />
+          <div>
+            <p className="micro text-aubergine">{GARANTIE.titre}</p>
+            <p className="mt-2 text-[1rem] font-semibold leading-snug text-encre">{GARANTIE.texte}</p>
+            <p className="legende mt-2 text-encre/65">{GARANTIE.detail}</p>
+          </div>
+        </div>
+
+        <p className="micro mt-10 text-center text-aubergine">
           Crédit prépayé · Aucun engagement de durée · Vous ne payez que les jours où vous ouvrez
         </p>
       </div>

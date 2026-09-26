@@ -28,13 +28,21 @@ export default function Footer() {
                 <p className="micro text-creme/75">{colonne.titre}</p>
                 <ul className="mt-5 space-y-3">
                   {colonne.liens.map((lien) => (
-                    <li key={lien}>
-                      <button
-                        onClick={() => allerA('calculateur')}
-                        className="lift souligne-anime text-left text-[15px] text-creme/70 hover:text-creme"
-                      >
-                        {lien}
-                      </button>
+                    <li key={lien.libelle}>
+                      {lien.ancre ? (
+                        <a
+                          href={`#${lien.ancre}`}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            allerA(lien.ancre)
+                          }}
+                          className="lift souligne-anime text-left text-[15px] text-creme/70 hover:text-creme"
+                        >
+                          {lien.libelle}
+                        </a>
+                      ) : (
+                        <span className="text-[15px] text-creme/55">{lien.libelle}</span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -47,13 +55,17 @@ export default function Footer() {
           <p className="legende text-creme/60">
             © {new Date().getFullYear()} Belya · Abidjan, Côte d’Ivoire
           </p>
-          <ul className="flex flex-wrap gap-x-6 gap-y-2">
-            {PIED.legal.map((lien) => (
-              <li key={lien}>
-                <button className="legende lift text-creme/60 hover:text-creme">{lien}</button>
-              </li>
-            ))}
-          </ul>
+          {PIED.legal.length > 0 && (
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              {PIED.legal.map((lien) => (
+                <li key={lien.libelle}>
+                  <a href={lien.href} className="legende lift text-creme/60 hover:text-creme">
+                    {lien.libelle}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </footer>
