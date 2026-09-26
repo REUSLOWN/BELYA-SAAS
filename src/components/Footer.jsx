@@ -1,4 +1,4 @@
-import { PIED, allerA } from '../donnees'
+import { APPLICATION_EN_LIGNE, PIED, allerA } from '../donnees'
 
 export default function Footer() {
   return (
@@ -13,13 +13,20 @@ export default function Footer() {
               {PIED.slogan}
             </p>
 
-            <div className="mt-8 flex items-center gap-2.5">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
-              <span className="micro text-creme/70">Système opérationnel</span>
-            </div>
+            {/*
+              Le point vert n'apparaît que si l'application est
+              réellement en ligne. L'afficher avant le déploiement
+              affirmerait quelque chose de faux.
+            */}
+            {APPLICATION_EN_LIGNE && (
+              <div className="mt-8 flex items-center gap-2.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                </span>
+                <span className="micro text-creme/70">Système opérationnel</span>
+              </div>
+            )}
           </div>
 
           <div className="grid gap-8 sm:grid-cols-3">

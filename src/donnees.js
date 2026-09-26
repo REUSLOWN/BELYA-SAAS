@@ -467,10 +467,24 @@ export const PIED = {
     },
   ],
   /*
-   * Pages légales : à rétablir quand elles existent (mentions légales,
-   * confidentialité — obligatoire dès qu'on stocke les numéros des clientes,
-   * loi n° 2013-450, ARTCI — et conditions générales de vente).
-   * Format : { libelle: 'Mentions légales', href: '/mentions-legales' }
+   * Pages légales, servies en HTML statique depuis public/. Elles portent
+   * des marqueurs [À COMPLÉTER] partout où il manque une information que
+   * seul le propriétaire détient — RCCM, adresse, e-mail. Une mention
+   * légale inventée vaut moins que pas de mention.
    */
-  legal: [],
+  legal: [
+    { libelle: 'Mentions légales', href: '/mentions-legales.html' },
+    { libelle: 'Confidentialité', href: '/confidentialite.html' },
+    { libelle: 'Conditions générales', href: '/conditions.html' },
+  ],
 }
+
+/*
+ * Le badge « Système opérationnel » du pied de page.
+ *
+ * Il est à faux tant que l'application n'est pas en ligne : afficher un
+ * point vert clignotant pour un service qui n'existe pas encore est une
+ * affirmation fausse, et c'est la première chose qu'une gérante
+ * vérifiera. À passer à true le jour du déploiement.
+ */
+export const APPLICATION_EN_LIGNE = false
