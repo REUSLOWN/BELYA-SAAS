@@ -1,16 +1,19 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ArrowUpRight, X } from 'lucide-react'
-import { ACTIVATION, GARANTIE, PAIEMENTS, fcfa, lienPaiement } from '../donnees'
+import { ACTIVATION, GARANTIE, PAIEMENTS, fcfa, lienInscription } from '../donnees'
 
 /*
- * Règlement direct. Un clic sur un portefeuille ouvre la page de paiement
- * de l'opérateur — aucun passage par WhatsApp, aucun contact préalable.
+ * Un seul bouton : vers l'inscription dans l'application. C'est là que
+ * la gérante crée son compte, puis paie — et c'est la page de
+ * l'agrégateur, pas celle-ci, qui lui fait choisir son opérateur.
  *
- * La destination vient de `lienPaiement()` : le lien propre au portefeuille
- * s'il existe, sinon la caisse de l'agrégateur avec l'opérateur pré-choisi.
- * Si rien n'est configuré, le portefeuille s'affiche comme indisponible
- * plutôt que de mener dans le vide.
+ * Aucun passage par WhatsApp, aucun contact préalable.
+ *
+ * Les quatre pastilles sont de l'information, pas des boutons : un
+ * paiement encaissé avant l'inscription n'aurait personne à créditer.
+ * Si APP_URL est vide, le bouton s'affiche comme indisponible plutôt que
+ * de mener dans le vide.
  */
 export default function ModalePaiement({ offre, onFermer }) {
   const racine = useRef(null)
@@ -31,13 +34,13 @@ export default function ModalePaiement({ offre, onFermer }) {
     const ctx = gsap.context(() => {
       gsap.from('[data-voile]', { opacity: 0, duration: 0.3, ease: 'power2.out' })
       gsap.from('[data-panneau]', { y: 40, opacity: 0, duration: 0.55, ease: 'power3.out' })
-      gsap.from('[data-wallet]', {
-        y: 18,
+      gsap.from('[data-moyen]', {
+        y: 14,
         opacity: 0,
-        duration: 0.5,
+        duration: 0.45,
         ease: 'power3.out',
-        stagger: 0.08,
-        delay: 0.1,
+        stagger: 0.06,
+        delay: 0.15,
       })
     }, racine)
 
@@ -49,12 +52,8 @@ export default function ModalePaiement({ offre, onFermer }) {
     }
   }, [onFermer])
 
-  const regler = (moyen) => {
-    const destination = lienPaiement(moyen, offre)
-    if (destination) window.open(destination, '_blank', 'noopener,noreferrer')
-  }
-
-  const aucunMoyen = PAIEMENTS.every((moyen) => !lienPaiement(moyen, offre))
+  // Même onglet : l'inscription est la suite du parcours, pas un aparté.
+  const destination = lienInscription(offre)
 
   return (
     <div
@@ -112,57 +111,55 @@ export default function ModalePaiement({ offre, onFermer }) {
 
         <p className="legende mt-3 font-semibold text-encre/80">{GARANTIE.courte}</p>
 
-        <p className="micro mt-7 text-aubergine">{ACTIVATION.etape1}</p>
+        {destination ? (
+          <a
+            href={destination}
+            className="magnetique group mt-7 flex w-full items-center justify-center gap-2 rounded-[1.25rem] bg-magenta px-5 py-4 text-[15px] font-extrabold tracking-serre text-creme transition-all duration-300 hover:shadow-[0_14px_40px_-18px_rgba(194,24,91,0.8)]"
+          >
+            {ACTIVATION.cta}
+            <ArrowUpRight
+              size={18}
+              strokeWidth={2.5}
+              className="shrink-0 transition-transform duration-300 group-hover:translate-x-0.5"
+              aria-hidden="true"
+            />
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="mt-7 flex w-full cursor-not-allowed items-center justify-center rounded-[1.25rem] border border-encre/10 bg-white/30 px-5 py-4 text-[15px] font-extrabold tracking-serre text-encre/40"
+          >
+            {ACTIVATION.cta}
+          </button>
+        )}
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {PAIEMENTS.map((moyen) => {
-            const actif = Boolean(lienPaiement(moyen, offre))
-
-            return (
-              <button
-                key={moyen.id}
-                data-wallet
-                onClick={() => regler(moyen)}
-                disabled={!actif}
-                aria-label={
-                  actif
-                    ? `Payer ${fcfa(offre.mensuel)} avec ${moyen.nom}`
-                    : `${moyen.nom} — indisponible`
-                }
-                className={`group relative flex items-center gap-3 rounded-[1.25rem] border p-3.5 text-left transition-all duration-300 ${
-                  actif
-                    ? 'magnetique border-encre/12 bg-white/70 hover:border-magenta hover:shadow-[0_10px_30px_-18px_rgba(26,20,32,0.5)]'
-                    : 'cursor-not-allowed border-encre/10 bg-white/30 opacity-50'
-                }`}
-              >
-                <span
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.8rem] text-[13px] font-extrabold"
-                  style={{ backgroundColor: moyen.fond, color: moyen.texte }}
-                  aria-hidden="true"
-                >
-                  {moyen.sigle}
-                </span>
-
-                <span className="min-w-0 flex-1 text-[15px] font-semibold leading-tight tracking-serre text-encre">
-                  {moyen.nom}
-                </span>
-
-                {actif && (
-                  <ArrowUpRight
-                    size={17}
-                    strokeWidth={2.5}
-                    className="shrink-0 text-encre/35 transition-colors duration-300 group-hover:text-magenta"
-                    aria-hidden="true"
-                  />
-                )}
-              </button>
-            )
-          })}
-        </div>
-
-        <p className="legende mt-5 text-encre/60">
-          {aucunMoyen ? ACTIVATION.indisponible : ACTIVATION.mention}
+        <p className="legende mt-4 text-encre/60">
+          {destination ? ACTIVATION.mention : ACTIVATION.indisponible}
         </p>
+
+        <p className="micro mt-7 text-aubergine">{ACTIVATION.moyensAcceptes}</p>
+
+        <ul className="mt-3 flex flex-wrap gap-2" aria-label={ACTIVATION.moyensAcceptes}>
+          {PAIEMENTS.map((moyen) => (
+            <li
+              key={moyen.id}
+              data-moyen
+              className="flex items-center gap-2 rounded-full border border-encre/10 bg-white/60 py-1.5 pl-1.5 pr-3.5"
+            >
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-extrabold"
+                style={{ backgroundColor: moyen.fond, color: moyen.texte }}
+                aria-hidden="true"
+              >
+                {moyen.sigle}
+              </span>
+              <span className="text-[13px] font-semibold leading-none tracking-serre text-encre/80">
+                {moyen.nom}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )

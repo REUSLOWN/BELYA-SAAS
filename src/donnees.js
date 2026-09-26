@@ -10,55 +10,59 @@
  */
 
 /*
- * PAIEMENT DIRECT — AUCUN CONTACT PAR WHATSAPP.
+ * PAIEMENT — PAR L'APPLICATION, AUCUN CONTACT PAR WHATSAPP.
  *
- * Un clic sur un portefeuille envoie la cliente droit au règlement.
- * Deux façons de renseigner la destination, par ordre de priorité :
+ * Le site ne prend pas l'argent. Il envoie la gérante s'inscrire dans
+ * l'application, et c'est là qu'elle paie :
  *
- *   1. `lien` sur le portefeuille — une URL de paiement propre à
- *      l'opérateur. Seul Wave en délivre une sans intermédiaire, via un
- *      compte Wave Business (https://pay.wave.com/m/<id>/c/ci/).
- *      Orange Money et MTN MoMo exigent un contrat marchand et une API ;
- *      Moov Money ne fonctionne qu'en USSD. Aucun des trois n'a de lien
- *      public : laisse leur `lien` vide et passe par CHECKOUT_URL.
+ *   site vitrine  →  APP_URL/inscription/?offre=<solo|salon|institut>
+ *                 →  code WhatsApp, compte créé
+ *                 →  écran de recharge
+ *                 →  page de l'agrégateur, où elle choisit son opérateur
  *
- *   2. CHECKOUT_URL — l'URL de caisse d'un agrégateur (CinetPay,
- *      PayDunya, kkiaPay). UN SEUL compte couvre les quatre portefeuilles.
- *      Le portefeuille choisi part en paramètre `wallet`, avec l'offre et
- *      le montant, pour que la caisse s'ouvre déjà sur le bon opérateur.
+ * Pourquoi ce détour plutôt que quatre boutons de portefeuille. Un
+ * paiement encaissé avant l'inscription n'a personne à créditer : il
+ * faudrait rattacher la somme à un compte à la main, une fois le compte
+ * créé. Et le choix de l'opérateur appartient à la page de l'agrégateur,
+ * qui les connaît tous les quatre — le dupliquer ici reviendrait à le
+ * maintenir à deux endroits.
  *
- * Prérequis commun, rappelé par le cahier (section 11) : RCCM, pièce du
- * gérant et RIB. Tant que rien n'est renseigné, les boutons se présentent
- * comme indisponibles au lieu de mener dans le vide.
+ * Les quatre pastilles restent affichées, mais comme information : elles
+ * disent ce qu'on accepte, ce ne sont plus des boutons.
+ *
+ * Prérequis, rappelé par le cahier (section 11) : RCCM, pièce du gérant
+ * et RIB — pour le compte marchand, pas pour ouvrir l'application.
  */
-export const CHECKOUT_URL = ''
 
 /*
- * Les quatre portefeuilles mobiles de Côte d'Ivoire.
+ * Adresse de l'application, à renseigner par le propriétaire — par
+ * exemple 'https://app.belya.ci'. Tant qu'elle est vide, le bouton se
+ * présente comme indisponible plutôt que de mener dans le vide.
+ */
+export const APP_URL = ''
+
+/*
+ * Les quatre portefeuilles mobiles de Côte d'Ivoire, pour information.
  * Les couleurs sont approchées : remplacer par les chartes officielles
  * de chaque opérateur avant mise en ligne (les logos sont des marques
  * déposées, leur usage demande leur kit de marque).
  */
 export const PAIEMENTS = [
-  { id: 'orange', nom: 'Orange Money', sigle: 'OM', fond: '#FF7900', texte: '#1A1420', lien: '' },
-  { id: 'mtn', nom: 'MTN MoMo', sigle: 'MTN', fond: '#FFCC00', texte: '#1A1420', lien: '' },
-  { id: 'moov', nom: 'Moov Money', sigle: 'MOOV', fond: '#004E9F', texte: '#FAF6F4', lien: '' },
-  { id: 'wave', nom: 'Wave', sigle: 'WAVE', fond: '#1DC3F3', texte: '#1A1420', lien: '' },
+  { id: 'orange', nom: 'Orange Money', sigle: 'OM', fond: '#FF7900', texte: '#1A1420' },
+  { id: 'mtn', nom: 'MTN MoMo', sigle: 'MTN', fond: '#FFCC00', texte: '#1A1420' },
+  { id: 'moov', nom: 'Moov Money', sigle: 'MOOV', fond: '#004E9F', texte: '#FAF6F4' },
+  { id: 'wave', nom: 'Wave', sigle: 'WAVE', fond: '#1DC3F3', texte: '#1A1420' },
 ]
 
-/** Destination de règlement pour un portefeuille, ou null si rien n'est configuré. */
-export function lienPaiement(moyen, offre) {
-  if (moyen.lien) return moyen.lien
-
-  if (CHECKOUT_URL) {
-    const separateur = CHECKOUT_URL.includes('?') ? '&' : '?'
-    return (
-      `${CHECKOUT_URL}${separateur}wallet=${encodeURIComponent(moyen.id)}` +
-      `&offre=${encodeURIComponent(offre.nom)}&montant=${offre.mensuel}`
-    )
-  }
-
-  return null
+/*
+ * Destination d'inscription pour une offre, ou null si APP_URL est vide.
+ * `offre.profil` vaut solo, salon ou institut — les mêmes valeurs que
+ * l'énumération Offre de l'application.
+ */
+export function lienInscription(offre) {
+  if (!APP_URL) return null
+  const base = APP_URL.replace(/\/+$/, '')
+  return `${base}/inscription/?offre=${encodeURIComponent(offre.profil)}`
 }
 
 /* Libellé du bouton des cartes Tarifs. */
@@ -66,12 +70,14 @@ export const CTA_TARIF = 'Activer mon compte'
 
 export const ACTIVATION = {
   titre: 'Activer votre compte Belya',
-  etape1: 'Payez avec votre portefeuille mobile',
   libelleMontant: 'Montant à régler',
   rappel:
     'Crédit prépayé : le compte se décompte au prorata des jours ouverts. Aucun prélèvement automatique, vous rechargez quand vous voulez.',
-  mention: 'Vous êtes redirigé vers votre opérateur pour finaliser le règlement.',
-  indisponible: 'Paiement en ligne bientôt disponible.',
+  cta: 'Continuer vers l’inscription',
+  moyensAcceptes: 'Moyens acceptés',
+  mention:
+    'Vous créez votre compte en 1 minute, puis vous payez par Orange Money, MTN MoMo, Moov Money ou Wave.',
+  indisponible: 'Inscriptions bientôt ouvertes.',
 }
 
 /*
@@ -347,15 +353,24 @@ export const PROTOCOLE = [
 export const BADGE_OFFRE = 'Recommandé'
 
 /*
- * Garantie premier mois, calée sur le seuil de rentabilité du calculateur.
+ * Garantie premier mois.
+ *
+ * Le texte dit exactement ce que fait le code : `evaluer_la_garantie`
+ * dans paiements/credit.py recrédite JOURS_GARANTIE = 30 jours. Elle ne
+ * rembourse pas d'argent, elle offre le mois suivant — dire
+ * « remboursée » serait promettre autre chose que ce qui se passe.
+ *
+ * Le seuil se compte en créneaux sauvés sur les 30 jours qui suivent le
+ * premier paiement, et il est fixe : 1 en Solo, 3 en Salon, 6 en
+ * Institut, quel que soit le prix de la prestation.
  */
 export const GARANTIE = {
   titre: 'Garantie premier mois',
   texte:
-    'Si Belya ne vous fait pas sauver assez de créneaux pour couvrir son prix le premier mois, vous êtes remboursée.',
+    'Si Belya ne vous fait pas sauver assez de créneaux le premier mois, le mois suivant vous est offert.',
   detail:
-    'À 5 000 F la prestation : 1 créneau sauvé en Solo, 3 en Salon, 6 en Institut.',
-  courte: 'Garantie premier mois : remboursée si Belya ne couvre pas son prix.',
+    'Seuil sur les 30 jours qui suivent le premier paiement : 1 créneau sauvé en Solo, 3 en Salon, 6 en Institut.',
+  courte: 'Garantie : si le premier mois ne tient pas sa promesse, le suivant est offert.',
 }
 
 export const TARIFS = [
