@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Conditions générales — Belya</title>
+  <meta name="description" content="Abonnement au crédit prépayé, garantie premier mois, et ce qui se passe quand le solde arrive à zéro." />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" href="/favicon.svg" />
+
+  <!--
+    Page statique, sans JavaScript.
+
+    Les chiffres viennent du code, pas d'une page commerciale : BAREME et
+    PACKS pour les prix, JOURS_PILOTE pour l'offre pilote,
+    evaluer_la_garantie pour la garantie. Toute divergence entre cette
+    page et paiements/ serait une promesse que le produit ne tient pas.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --creme: #faf6f4;
+      --encre: #1a1420;
+      --magenta: #c2185b;
+      --aubergine: #2b1b2e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--creme);
+      color: var(--encre);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-text-size-adjust: 100%;
+    }
+    main { max-width: 44rem; margin: 0 auto; padding: 3rem 1rem 5rem; }
+    a { color: var(--magenta); }
+    a:focus-visible { outline: 2px solid var(--magenta); outline-offset: 3px; }
+    .retour {
+      display: inline-block; margin-bottom: 2.5rem; font-weight: 600;
+      font-size: 15px; text-decoration: none;
+    }
+    .retour:hover { text-decoration: underline; }
+    h1 {
+      font-size: clamp(1.9rem, 6vw, 2.6rem); font-weight: 800;
+      letter-spacing: -0.03em; line-height: 1.1; margin: 0 0 0.5rem;
+    }
+    .date { font-size: 14px; color: rgba(26, 20, 32, 0.6); margin: 0 0 2.5rem; }
+    .chapeau {
+      border-left: 3px solid var(--magenta);
+      background: rgba(43, 27, 46, 0.06);
+      padding: 1rem 1.25rem; border-radius: 0 0.75rem 0.75rem 0;
+      margin: 0 0 2.5rem;
+    }
+    h2 {
+      font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em;
+      margin: 2.75rem 0 0.75rem; padding-top: 1.75rem;
+      border-top: 1px solid rgba(26, 20, 32, 0.12);
+    }
+    p, li { font-size: 16px; }
+    ul { padding-left: 1.25rem; }
+    li { margin-bottom: 0.4rem; }
+    .tableau { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 15px; }
+    .tableau th, .tableau td {
+      text-align: left; padding: 0.7rem 0.6rem; vertical-align: top;
+      border-bottom: 1px solid rgba(26, 20, 32, 0.12);
+    }
+    .tableau th { font-weight: 600; color: var(--aubergine); }
+    .tableau td.nombre { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .acompleter {
+      display: inline-block; background: #fde68a; color: #4a3708;
+      padding: 0.1rem 0.45rem; border-radius: 0.3rem;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+    }
+    footer {
+      margin-top: 4rem; padding-top: 1.75rem;
+      border-top: 1px solid rgba(26, 20, 32, 0.12);
+      font-size: 14px; color: rgba(26, 20, 32, 0.6);
+    }
+    footer a { margin-right: 1.25rem; }
+    @media (max-width: 34rem) {
+      .tableau, .tableau tbody, .tableau tr, .tableau td, .tableau th { display: block; }
+      .tableau thead { display: none; }
+      .tableau tr { border-bottom: 1px solid rgba(26,20,32,0.12); padding: 0.75rem 0; }
+      .tableau td { border: 0; padding: 0.15rem 0; }
+      .tableau td::before { content: attr(data-libelle) " : "; font-weight: 600; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="retour" href="/">← Retour à l’accueil</a>
+
+    <h1>Conditions générales de vente</h1>
+    <p class="date">Dernière mise à jour : <span class="acompleter">[À COMPLÉTER]</span></p>
+
+    <p class="chapeau">
+      Belya fonctionne au <strong>crédit prépayé</strong>. Vous achetez des
+      jours, et un jour n’est décompté que lorsque vous ouvrez. Il n’y a
+      <strong>aucun prélèvement automatique</strong> : rien ne se
+      renouvelle sans que vous rechargiez.
+    </p>
+
+    <h2>1. Objet</h2>
+    <p>
+      Belya est un logiciel de prise de rendez-vous et de réduction des
+      absences, destiné aux salons de beauté, instituts et prestataires à
+      domicile. Il est édité par
+      <span class="acompleter">[À COMPLÉTER — nom de l’entreprise]</span>,
+      RCCM <span class="acompleter">[À COMPLÉTER]</span>, et accessible
+      depuis un navigateur, sans installation.
+    </p>
+
+    <h2>2. Offres et tarifs</h2>
+    <p>Prix en francs CFA, toutes taxes comprises.</p>
+    <table class="tableau">
+      <thead>
+        <tr>
+          <th>Offre</th><th>Pour qui</th><th>Par jour ouvert</th>
+          <th>Le mois</th><th>Recharge minimum</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-libelle="Offre">Solo</td>
+          <td data-libelle="Pour qui">Prestataire à domicile</td>
+          <td class="nombre" data-libelle="Par jour ouvert">100 F</td>
+          <td class="nombre" data-libelle="Le mois">3 000 F</td>
+          <td class="nombre" data-libelle="Recharge minimum">1 000 F</td>
+        </tr>
+        <tr>
+          <td data-libelle="Offre">Salon</td>
+          <td data-libelle="Pour qui">2 à 4 postes</td>
+          <td class="nombre" data-libelle="Par jour ouvert">500 F</td>
+          <td class="nombre" data-libelle="Le mois">15 000 F</td>
+          <td class="nombre" data-libelle="Recharge minimum">2 000 F</td>
+        </tr>
+        <tr>
+          <td data-libelle="Offre">Institut</td>
+          <td data-libelle="Pour qui">5 postes et plus</td>
+          <td class="nombre" data-libelle="Par jour ouvert">1 000 F</td>
+          <td class="nombre" data-libelle="Le mois">30 000 F</td>
+          <td class="nombre" data-libelle="Recharge minimum">5 000 F</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>3. Forfaits trimestre et année</h2>
+    <p>
+      Ces montants donnent <strong>plus de jours</strong> que la recharge
+      libre : 90 jours au prix de 80, 365 au prix de 300.
+    </p>
+    <table class="tableau">
+      <thead>
+        <tr><th>Offre</th><th>Trimestre — 90 jours</th><th>Année — 365 jours</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-libelle="Offre">Solo</td>
+          <td class="nombre" data-libelle="Trimestre">8 000 F</td>
+          <td class="nombre" data-libelle="Année">30 000 F</td>
+        </tr>
+        <tr>
+          <td data-libelle="Offre">Salon</td>
+          <td class="nombre" data-libelle="Trimestre">40 000 F</td>
+          <td class="nombre" data-libelle="Année">150 000 F</td>
+        </tr>
+        <tr>
+          <td data-libelle="Offre">Institut</td>
+          <td class="nombre" data-libelle="Trimestre">80 000 F</td>
+          <td class="nombre" data-libelle="Année">300 000 F</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. Recharge libre</h2>
+    <p>
+      Tout autre montant, au-dessus du minimum de votre offre, est converti
+      en jours : <strong>montant ÷ prix du jour</strong>, arrondi au jour
+      inférieur. Exemple : 2 000 F sur l’offre Salon donnent 4 jours.
+    </p>
+
+    <h2>5. Décompte : vous ne payez que les jours où vous ouvrez</h2>
+    <p>
+      Chaque soir, un jour est retiré de votre solde —
+      <strong>seulement si votre salon est ouvert ce jour-là</strong>,
+      d’après les horaires que vous avez renseignés. Un salon fermé le
+      dimanche ne paie pas son dimanche. Trois semaines de fermeture ne
+      coûtent rien.
+    </p>
+
+    <h2>6. Paiement</h2>
+    <p>
+      Le paiement se fait par mobile money — Orange Money, MTN MoMo, Moov
+      Money ou Wave — par l’intermédiaire de CinetPay. Le compte est
+      crédité dès la confirmation du paiement. Belya ne conserve aucune
+      coordonnée bancaire.
+    </p>
+    <p>
+      <strong>Aucun prélèvement automatique.</strong> Rien ne se renouvelle
+      tacitement : le solde diminue, et vous rechargez si vous le
+      souhaitez.
+    </p>
+
+    <h2>7. Solde épuisé</h2>
+    <p>À zéro jour, le service se met en veille — il ne s’efface pas.</p>
+    <ul>
+      <li>Votre agenda reste <strong>lisible</strong>, mais plus modifiable ;</li>
+      <li>votre page publique de réservation annonce une indisponibilité temporaire ;</li>
+      <li>les rappels aux clientes sont suspendus, et repartent à la recharge ;</li>
+      <li><strong>aucune donnée n’est supprimée, aucun rendez-vous n’est annulé.</strong></li>
+    </ul>
+    <p>Une recharge réactive tout immédiatement.</p>
+    <p>
+      Vous êtes prévenue par WhatsApp lorsqu’il reste 5 jours, 2 jours,
+      puis lorsque le solde atteint zéro.
+    </p>
+
+    <h2>8. Garantie premier mois</h2>
+    <p>
+      Si, dans les <strong>30 jours qui suivent votre premier paiement</strong>,
+      Belya ne vous a pas fait sauver assez de créneaux, <strong>30 jours
+      supplémentaires vous sont crédités</strong> — le mois suivant vous
+      est offert.
+    </p>
+    <table class="tableau">
+      <thead>
+        <tr><th>Offre</th><th>Seuil : créneaux sauvés sur 30 jours</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-libelle="Offre">Solo</td><td class="nombre" data-libelle="Seuil">1</td></tr>
+        <tr><td data-libelle="Offre">Salon</td><td class="nombre" data-libelle="Seuil">3</td></tr>
+        <tr><td data-libelle="Offre">Institut</td><td class="nombre" data-libelle="Seuil">6</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Un <strong>créneau sauvé</strong> est un rendez-vous honoré qui a
+      repris la place d’un rendez-vous annulé. Il est compté un par un, pas
+      estimé. Le seuil ne dépend pas du prix de vos prestations.
+    </p>
+    <p>
+      La garantie est <strong>évaluée une seule fois</strong>, automatiquement,
+      au trentième jour. Elle prend la forme d’un crédit de jours et
+      <strong>non d’un remboursement en argent</strong>.
+    </p>
+
+    <h2>9. Offre pilote</h2>
+    <p>
+      Les salons pilotes retenus par l’éditeur reçoivent
+      <strong>30 jours offerts</strong> à l’ouverture de leur compte.
+      N’ayant rien payé, ils ne déclenchent pas la garantie du premier
+      mois.
+    </p>
+
+    <h2>10. Messages WhatsApp</h2>
+    <p>
+      Chaque offre comprend un quota mensuel de messages payants : 60 en
+      Solo, 500 en Salon, 1 200 en Institut. Un message envoyé dans les
+      24 heures suivant un message de la cliente est gratuit — c’est
+      pourquoi le rappel de la veille demande une réponse.
+    </p>
+    <p>
+      Quota atteint : les rappels de la veille continuent d’être envoyés,
+      ce sont eux qui font revenir vos clientes. Les autres messages
+      attendent le mois suivant.
+    </p>
+
+    <h2>11. Engagement et résiliation</h2>
+    <p>
+      Aucun engagement de durée. Vous cessez d’utiliser Belya en ne
+      rechargeant plus. Pour faire supprimer votre compte et vos données,
+      écrivez à
+      <span class="acompleter">[À COMPLÉTER — adresse e-mail]</span>.
+    </p>
+    <p>
+      <span class="acompleter">[À COMPLÉTER — politique de remboursement d’un solde non consommé en cas de résiliation]</span>
+    </p>
+
+    <h2>12. Disponibilité</h2>
+    <p>
+      Belya est accessible en continu, hors interruptions de maintenance ou
+      pannes des services dont il dépend — hébergeur, opérateur WhatsApp,
+      agrégateur de paiement. Aucun niveau de service chiffré n’est garanti.
+      <span class="acompleter">[À COMPLÉTER — si vous souhaitez vous engager sur une disponibilité chiffrée]</span>
+    </p>
+
+    <h2>13. Obligations de la gérante</h2>
+    <ul>
+      <li>N’enregistrer que des clientes qui acceptent d’être contactées par WhatsApp ;</li>
+      <li>tenir ses horaires et ses prestations à jour, puisqu’ils décident des créneaux proposés ;</li>
+      <li>ne pas partager ses accès : la connexion se fait par son numéro WhatsApp ;</li>
+      <li>respecter un « STOP » envoyé par une cliente.</li>
+    </ul>
+
+    <h2>14. Données personnelles</h2>
+    <p>
+      Le traitement des données est décrit dans la
+      <a href="/confidentialite.html">politique de confidentialité</a>,
+      qui fait partie intégrante des présentes conditions.
+    </p>
+
+    <h2>15. Droit applicable</h2>
+    <p>
+      Les présentes conditions sont régies par le droit ivoirien. En cas de
+      litige, une solution amiable sera recherchée avant toute action.
+      <span class="acompleter">[À COMPLÉTER — juridiction compétente]</span>
+    </p>
+
+    <footer>
+      <a href="/">Accueil</a>
+      <a href="/mentions-legales.html">Mentions légales</a>
+      <a href="/confidentialite.html">Confidentialité</a>
+    </footer>
+  </main>
+</body>
+</html>

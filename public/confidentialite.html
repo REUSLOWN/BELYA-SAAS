@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Confidentialité — Belya</title>
+  <meta name="description" content="Quelles données Belya traite, pourquoi, combien de temps, et comment les faire supprimer." />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" href="/favicon.svg" />
+
+  <!--
+    Page statique, sans JavaScript.
+
+    Le contenu décrit ce que le code fait réellement : les données listées
+    sont celles des modèles Etablissement, Client, RendezVous, Message et
+    Conversation. Les durées non décidées sont marquées [À COMPLÉTER] —
+    une politique de confidentialité inventée est pire qu'absente.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --creme: #faf6f4;
+      --encre: #1a1420;
+      --magenta: #c2185b;
+      --aubergine: #2b1b2e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--creme);
+      color: var(--encre);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-text-size-adjust: 100%;
+    }
+    main { max-width: 44rem; margin: 0 auto; padding: 3rem 1rem 5rem; }
+    a { color: var(--magenta); }
+    a:focus-visible { outline: 2px solid var(--magenta); outline-offset: 3px; }
+    .retour {
+      display: inline-block; margin-bottom: 2.5rem; font-weight: 600;
+      font-size: 15px; text-decoration: none;
+    }
+    .retour:hover { text-decoration: underline; }
+    h1 {
+      font-size: clamp(1.9rem, 6vw, 2.6rem); font-weight: 800;
+      letter-spacing: -0.03em; line-height: 1.1; margin: 0 0 0.5rem;
+    }
+    .date { font-size: 14px; color: rgba(26, 20, 32, 0.6); margin: 0 0 2.5rem; }
+    .chapeau {
+      border-left: 3px solid var(--magenta);
+      background: rgba(43, 27, 46, 0.06);
+      padding: 1rem 1.25rem; border-radius: 0 0.75rem 0.75rem 0;
+      margin: 0 0 2.5rem;
+    }
+    h2 {
+      font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em;
+      margin: 2.75rem 0 0.75rem; padding-top: 1.75rem;
+      border-top: 1px solid rgba(26, 20, 32, 0.12);
+    }
+    h3 { font-size: 1rem; font-weight: 600; margin: 1.5rem 0 0.4rem; }
+    p, li { font-size: 16px; }
+    ul { padding-left: 1.25rem; }
+    li { margin-bottom: 0.4rem; }
+    .tableau { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 15px; }
+    .tableau th, .tableau td {
+      text-align: left; padding: 0.7rem 0.6rem; vertical-align: top;
+      border-bottom: 1px solid rgba(26, 20, 32, 0.12);
+    }
+    .tableau th { font-weight: 600; color: var(--aubergine); }
+    .tableau caption { text-align: left; font-size: 14px; color: rgba(26,20,32,0.6); padding-bottom: 0.5rem; }
+    .acompleter {
+      display: inline-block; background: #fde68a; color: #4a3708;
+      padding: 0.1rem 0.45rem; border-radius: 0.3rem;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+    }
+    footer {
+      margin-top: 4rem; padding-top: 1.75rem;
+      border-top: 1px solid rgba(26, 20, 32, 0.12);
+      font-size: 14px; color: rgba(26, 20, 32, 0.6);
+    }
+    footer a { margin-right: 1.25rem; }
+    @media (max-width: 34rem) {
+      .tableau, .tableau tbody, .tableau tr, .tableau td, .tableau th { display: block; }
+      .tableau thead { display: none; }
+      .tableau tr { border-bottom: 1px solid rgba(26,20,32,0.12); padding: 0.75rem 0; }
+      .tableau td { border: 0; padding: 0.15rem 0; }
+      .tableau td::before { content: attr(data-libelle) " : "; font-weight: 600; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="retour" href="/">← Retour à l’accueil</a>
+
+    <h1>Politique de confidentialité</h1>
+    <p class="date">Dernière mise à jour : <span class="acompleter">[À COMPLÉTER]</span></p>
+
+    <p class="chapeau">
+      Belya traite deux sortes de données : celles de la <strong>gérante</strong>
+      qui s’abonne, et celles de ses <strong>clientes</strong>, qu’elle
+      enregistre pour prendre rendez-vous. Les données d’un salon ne sont
+      jamais visibles par un autre salon, ni partagées entre salons —
+      c’est une règle inscrite dans le code, pas une intention.
+    </p>
+
+    <h2>1. Responsable du traitement</h2>
+    <p>
+      <span class="acompleter">[À COMPLÉTER — nom de l’entreprise]</span>,
+      RCCM <span class="acompleter">[À COMPLÉTER]</span>, Abidjan, Côte
+      d’Ivoire. Contact :
+      <span class="acompleter">[À COMPLÉTER — adresse e-mail]</span>.
+    </p>
+    <p>
+      Pour les données de ses clientes, le salon est responsable de
+      traitement et Belya agit comme sous-traitant : c’est la gérante qui
+      décide qui elle enregistre et pourquoi.
+    </p>
+
+    <h2>2. Données traitées</h2>
+
+    <h3>Données de la gérante</h3>
+    <table class="tableau">
+      <thead>
+        <tr><th>Donnée</th><th>Pourquoi</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-libelle="Donnée">Nom du salon, quartier, adresse</td>
+          <td data-libelle="Pourquoi">Afficher la page publique de réservation</td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Numéro WhatsApp</td>
+          <td data-libelle="Pourquoi">Se connecter (code à six chiffres) et recevoir le résumé du jour</td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Horaires, postes, prestations, tarifs</td>
+          <td data-libelle="Pourquoi">Calculer les créneaux disponibles</td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Historique de recharges et solde en jours</td>
+          <td data-libelle="Pourquoi">Tenir le compte de l’abonnement</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Données des clientes du salon</h3>
+    <table class="tableau">
+      <thead>
+        <tr><th>Donnée</th><th>Pourquoi</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-libelle="Donnée">Nom et numéro WhatsApp</td>
+          <td data-libelle="Pourquoi">Identifier le rendez-vous et envoyer les rappels</td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Rendez-vous : date, heure, prestation, prix, statut</td>
+          <td data-libelle="Pourquoi">Tenir l’agenda du salon</td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Nombre d’absences</td>
+          <td data-libelle="Pourquoi">Demander un acompte après des absences répétées. Ce compteur est <strong>propre à chaque salon</strong> et n’est jamais partagé.</td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Messages WhatsApp envoyés et reçus</td>
+          <td data-libelle="Pourquoi">Prouver qu’un rappel est parti, et lire les réponses « OUI » et « STOP »</td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Accord pour recevoir des rappels</td>
+          <td data-libelle="Pourquoi">Respecter un « STOP ». Répondre STOP coupe les rappels chez tous les salons à la fois.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Belya ne demande <strong>ni date de naissance, ni adresse postale,
+      ni donnée de santé, ni coordonnées bancaires</strong> d’une cliente.
+      Aucun paiement de cliente ne transite par Belya : l’argent de la
+      prestation va directement au salon, hors du produit.
+    </p>
+
+    <h2>3. Base légale</h2>
+    <ul>
+      <li><strong>L’exécution du service</strong> pour l’agenda, les rendez-vous et les rappels ;</li>
+      <li><strong>l’intérêt légitime du salon</strong> à réduire les absences, pour le compteur d’absences et la liste d’attente ;</li>
+      <li><strong>le consentement</strong> pour les messages WhatsApp, révocable à tout moment en répondant STOP.</li>
+    </ul>
+
+    <h2>4. Durée de conservation</h2>
+    <table class="tableau">
+      <thead>
+        <tr><th>Donnée</th><th>Durée</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-libelle="Donnée">Inscription jamais confirmée par code</td>
+          <td data-libelle="Durée">Supprimée automatiquement après 24 heures</td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Codes de connexion</td>
+          <td data-libelle="Durée">10 minutes, puis supprimés à l’usage</td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Rendez-vous, clientes, messages</td>
+          <td data-libelle="Durée">Tant que le salon a un compte, puis <span class="acompleter">[À COMPLÉTER — durée après résiliation]</span></td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Sauvegardes de la base</td>
+          <td data-libelle="Durée">30 jours glissants, puis effacées</td>
+        </tr>
+        <tr>
+          <td data-libelle="Donnée">Journal des accès à l’administration</td>
+          <td data-libelle="Durée">8 semaines</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>5. Qui d’autre voit ces données</h2>
+    <p>Belya ne vend ni ne loue aucune donnée. Quatre prestataires interviennent :</p>
+    <table class="tableau">
+      <thead>
+        <tr><th>Prestataire</th><th>Ce qu’il reçoit</th><th>Où</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-libelle="Prestataire">Meta (WhatsApp Business)</td>
+          <td data-libelle="Ce qu’il reçoit">Numéro et contenu des messages envoyés et reçus</td>
+          <td data-libelle="Où">Hors UE</td>
+        </tr>
+        <tr>
+          <td data-libelle="Prestataire">CinetPay</td>
+          <td data-libelle="Ce qu’il reçoit">Numéro de la gérante et montant de sa recharge. Aucune donnée de cliente.</td>
+          <td data-libelle="Où">Côte d’Ivoire</td>
+        </tr>
+        <tr>
+          <td data-libelle="Prestataire">Hetzner</td>
+          <td data-libelle="Ce qu’il reçoit">Hébergement de l’application et des sauvegardes</td>
+          <td data-libelle="Où">Union européenne</td>
+        </tr>
+        <tr>
+          <td data-libelle="Prestataire">Vercel</td>
+          <td data-libelle="Ce qu’il reçoit">Hébergement du site vitrine uniquement. Aucune donnée de salon ni de cliente.</td>
+          <td data-libelle="Où">Hors UE</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>6. Mesure d’audience</h2>
+    <p>
+      Le site vitrine mesure sa fréquentation avec Vercel Analytics, qui
+      <strong>ne dépose aucun cookie</strong> et ne construit aucun profil
+      individuel. L’application, elle, n’a aucune mesure d’audience.
+    </p>
+
+    <h2>7. Cookies</h2>
+    <p>
+      Le site vitrine ne dépose aucun cookie. L’application en dépose un
+      seul, technique : celui qui maintient la session de la gérante
+      connectée pendant 30 jours. Il n’est pas lisible en JavaScript et ne
+      sert à aucun suivi publicitaire.
+    </p>
+
+    <h2>8. Sécurité</h2>
+    <ul>
+      <li>Tout transite en HTTPS, avec HSTS.</li>
+      <li>La gérante n’a pas de mot de passe : un code à six chiffres, valable dix minutes, bloqué quinze minutes après trois essais. Le code n’est jamais conservé en clair.</li>
+      <li>Les données d’un salon sont filtrées par établissement à chaque requête, et des tests automatisés le vérifient sur chaque page.</li>
+      <li>Tout accès à l’administration est consigné : qui, quand, sur quel salon.</li>
+      <li>La base est sauvegardée chaque nuit, chiffrée en transit, avec 30 jours de rétention.</li>
+    </ul>
+
+    <h2>9. Vos droits</h2>
+    <p>
+      Vous pouvez demander l’accès à vos données, leur rectification, leur
+      suppression, leur portabilité, ou vous opposer à leur traitement.
+    </p>
+    <ul>
+      <li><strong>Cliente d’un salon</strong> : adressez-vous d’abord à votre salon, qui décide de ce qu’il enregistre. Vous pouvez aussi écrire à l’adresse ci-dessous.</li>
+      <li><strong>Arrêter les rappels immédiatement</strong> : répondez <strong>STOP</strong> à n’importe quel message WhatsApp de Belya. L’effet est immédiat et vaut pour tous les salons.</li>
+      <li><strong>Gérante</strong> : écrivez à l’adresse ci-dessous pour la suppression de votre compte.</li>
+    </ul>
+    <p>
+      Contact : <span class="acompleter">[À COMPLÉTER — adresse e-mail]</span>.
+      Réponse sous <span class="acompleter">[À COMPLÉTER — délai, 30 jours recommandé]</span>.
+    </p>
+
+    <h2>10. Loi applicable et recours</h2>
+    <p>
+      Ce traitement relève de la <strong>loi ivoirienne n° 2013-450 du
+      19 juin 2013</strong> relative à la protection des données à
+      caractère personnel. L’autorité compétente est l’<strong>ARTCI</strong>
+      (Autorité de Régulation des Télécommunications de Côte d’Ivoire),
+      auprès de laquelle vous pouvez introduire une réclamation.
+    </p>
+    <p>
+      <span class="acompleter">[À COMPLÉTER — numéro de déclaration ARTCI, si le traitement a été déclaré]</span>
+    </p>
+
+    <footer>
+      <a href="/">Accueil</a>
+      <a href="/mentions-legales.html">Mentions légales</a>
+      <a href="/conditions.html">Conditions générales</a>
+    </footer>
+  </main>
+</body>
+</html>
