@@ -13,19 +13,23 @@ export default function Hero() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      /*
+       * Déplacement seul, jamais d'opacité 0 — ni ici ni pour le titre.
+       *
+       * Le HTML du hero est maintenant pré-rendu : il est à l'écran avant
+       * que React ne s'exécute. Une animation qui part de l'opacité 0 le
+       * ferait donc apparaître, puis disparaître, puis revenir. Glisser
+       * sans s'effacer garde le texte lisible dès le premier affichage,
+       * ce qui avance aussi le LCP sur réseau lent.
+       */
       gsap.from('[data-anim="entree"]', {
         y: 40,
-        opacity: 0,
         duration: 1.15,
         ease: 'power3.out',
         stagger: 0.08,
         delay: 0.15,
       })
 
-      /*
-       * Titre et chapô glissent sans jamais passer par l'opacité 0 : ils sont
-       * lisibles dès le premier affichage, ce qui avance le LCP sur réseau lent.
-       */
       gsap.from('[data-anim="texte"]', {
         y: 24,
         duration: 1.15,

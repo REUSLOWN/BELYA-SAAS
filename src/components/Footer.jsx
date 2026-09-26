@@ -59,7 +59,14 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 flex flex-col gap-4 border-t border-creme/15 pt-7 sm:flex-row sm:items-center sm:justify-between">
-          <p className="legende text-creme/60">
+          {/*
+            L'année est calculée au build côté serveur et à la visite
+            côté client : entre un build de décembre et une visite de
+            janvier, les deux diffèrent. React corrige le texte sans
+            bruit avec cet attribut, au lieu de signaler une
+            désynchronisation d'hydratation.
+          */}
+          <p className="legende text-creme/60" suppressHydrationWarning>
             © {new Date().getFullYear()} Belya · Abidjan, Côte d’Ivoire
           </p>
           {PIED.legal.length > 0 && (

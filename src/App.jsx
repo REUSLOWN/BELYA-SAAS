@@ -11,7 +11,14 @@ import Protocole from './components/Protocole'
 import Tarifs from './components/Tarifs'
 import Footer from './components/Footer'
 
-gsap.registerPlugin(ScrollTrigger)
+/*
+ * ScrollTrigger n'a de sens que dans un navigateur, et le pré-rendu du
+ * build exécute ce module dans Node. On n'enregistre donc le greffon que
+ * si `window` existe.
+ */
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 export default function App() {
   useEffect(() => {
