@@ -407,31 +407,28 @@ export const BADGE_OFFRE = 'Recommandé'
 /*
  * Garantie premier mois.
  *
- * ┌─────────────────────────────────────────────────────────────────┐
- * │ À TRANCHER — le site et le code ne disent pas la même chose.     │
- * │                                                                  │
- * │ Ce texte promet un REMBOURSEMENT. Or `evaluer_la_garantie`, dans │
- * │ belya-app/paiements/credit.py, recrédite JOURS_GARANTIE = 30     │
- * │ jours : elle offre le mois suivant, elle ne rend pas d'argent.   │
- * │                                                                  │
- * │ L'un des deux doit bouger. Rembourser suppose un versement       │
- * │ sortant en mobile money, qui n'existe pas encore et demande le   │
- * │ compte marchand — donc, en l'état, la promesse se tiendrait à la │
- * │ main.                                                            │
- * └─────────────────────────────────────────────────────────────────┘
+ * Le remède est un **crédit de 30 jours**, pas un remboursement :
+ * `evaluer_la_garantie` dans belya-app/paiements/credit.py ajoute
+ * JOURS_GARANTIE = 30 au solde. Le mois suivant est offert, aucun argent
+ * ne revient.
  *
- * Le seuil est celui du calculateur : récupérer au moins le prix de
+ * C'est la seule phrase de cette page qu'il faut relire à chaque
+ * modification du code : écrire « remboursée » serait promettre un
+ * versement sortant qui n'existe pas, et qu'il faudrait honorer à la
+ * main.
+ *
+ * Le seuil est celui du calculateur — récupérer au moins le prix de
  * l'offre, soit 1 créneau sauvé en Solo, 3 en Salon, 6 en Institut à
  * 5 000 F la prestation.
  */
 export const GARANTIE = {
   titre: 'Garantie premier mois',
   texte:
-    'Si Belya ne vous fait pas récupérer au moins le prix de votre offre le premier mois, on vous rembourse.',
+    'Si Belya ne vous fait pas récupérer au moins le prix de votre offre le premier mois, le mois suivant vous est offert.',
   detail:
-    'À 5 000 F la prestation : 1 créneau sauvé en Solo, 3 en Salon, 6 en Institut.',
+    'Sur les 30 jours qui suivent votre premier paiement. À 5 000 F la prestation : 1 créneau sauvé en Solo, 3 en Salon, 6 en Institut.',
   courte:
-    'Garantie premier mois : remboursée si Belya ne couvre pas son prix.',
+    'Garantie premier mois : le mois suivant offert si Belya ne couvre pas son prix.',
 }
 
 export const TARIFS = [

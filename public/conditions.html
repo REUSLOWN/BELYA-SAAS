@@ -12,15 +12,13 @@
     Page statique, sans JavaScript.
 
     Les chiffres viennent du code, pas d'une page commerciale : BAREME et
-    PACKS pour les prix, JOURS_PILOTE pour l'offre pilote. Toute
-    divergence entre cette page et paiements/ serait une promesse que le
-    produit ne tient pas.
+    PACKS pour les prix, JOURS_PILOTE pour l'offre pilote,
+    evaluer_la_garantie pour la garantie. Toute divergence entre cette
+    page et paiements/ serait une promesse que le produit ne tient pas.
 
-    EXCEPTION, SECTION 8 — le proprietaire a choisi de promettre un
-    REMBOURSEMENT. Le code, lui, recredite 30 jours
-    (evaluer_la_garantie, JOURS_GARANTIE). Tant que les deux ne sont pas
-    alignes, la promesse se tient a la main. Voir l'encadre dans
-    src/donnees.js.
+    La section 8 est la plus exposee : la garantie CREDITE 30 jours, elle
+    ne rembourse pas. Ecrire « remboursement » ici engagerait un versement
+    sortant qui n'existe pas.
   -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -235,7 +233,8 @@
     <p>
       Si, dans les <strong>30 jours qui suivent votre premier paiement</strong>,
       Belya ne vous a pas fait récupérer au moins le prix de votre offre,
-      <strong>vous êtes remboursée</strong>.
+      <strong>30 jours supplémentaires vous sont crédités</strong> — le
+      mois suivant vous est offert.
     </p>
     <table class="tableau">
       <thead>
@@ -254,11 +253,8 @@
     </p>
     <p>
       La garantie est <strong>évaluée une seule fois</strong>, automatiquement,
-      au trentième jour.
-    </p>
-    <p>
-      Modalités du remboursement :
-      <span class="acompleter">[À COMPLÉTER — délai, moyen de versement, et si le remboursement porte sur le premier paiement ou sur le solde non consommé]</span>
+      au trentième jour. Elle prend la forme d’un crédit de jours et
+      <strong>non d’un remboursement en argent</strong>.
     </p>
 
     <h2>9. Offre pilote</h2>
