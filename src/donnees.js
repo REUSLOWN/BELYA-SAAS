@@ -42,6 +42,38 @@
 export const APP_URL = ''
 
 /*
+ * Numéro commercial WhatsApp, au format international sans « + » —
+ * par exemple 2250700000000. Il vient de l'environnement Vite, donc
+ * VITE_WHATSAPP_COMMERCIAL dans le .env de Vercel.
+ *
+ * Attention : une variable VITE_ est incorporée au bundle et donc
+ * publique. C'est acceptable pour un numéro affiché de toute façon, ce
+ * ne le serait pas pour une clé.
+ *
+ * Vide ⇒ le bouton ne s'affiche pas, plutôt que de mener dans le vide.
+ */
+export const WHATSAPP_COMMERCIAL =
+  import.meta.env?.VITE_WHATSAPP_COMMERCIAL ?? ''
+
+/*
+ * Destination WhatsApp pour une offre, message déjà écrit. La gérante
+ * n'a plus qu'à appuyer sur envoyer : elle n'a ni à expliquer ce qu'elle
+ * veut, ni à retrouver le montant.
+ */
+export function lienWhatsApp(offre) {
+  if (!WHATSAPP_COMMERCIAL) return null
+
+  const numero = String(WHATSAPP_COMMERCIAL).replace(/[^0-9]/g, '')
+  if (!numero) return null
+
+  const message =
+    `Bonjour, je veux activer Belya — offre ${offre.nom} ` +
+    `(${fcfa(offre.mensuel)} par mois).`
+
+  return `https://wa.me/${numero}?text=${encodeURIComponent(message)}`
+}
+
+/*
  * Les quatre portefeuilles mobiles de Côte d'Ivoire, pour information.
  * Les couleurs sont approchées : remplacer par les chartes officielles
  * de chaque opérateur avant mise en ligne (les logos sont des marques
@@ -73,6 +105,7 @@ export const ACTIVATION = {
   libelleMontant: 'Montant à régler',
   rappel:
     'Crédit prépayé : le compte se décompte au prorata des jours ouverts. Aucun prélèvement automatique, vous rechargez quand vous voulez.',
+  ctaWhatsApp: 'Activer via WhatsApp',
   cta: 'Continuer vers l’inscription',
   moyensAcceptes: 'Moyens acceptés',
   mention:
@@ -125,27 +158,40 @@ export const HERO = {
 }
 
 /*
- * Le cahier chiffre la perte résiduelle du salon à 211 300 F pour 430 000 F
- * de perte initiale, soit 50,86 % rendus vendables une fois les cinq couches
- * en place. C'est un ratio de modèle, pas une mesure terrain.
+ * Un créneau perdu sur deux redevient vendable. Une moitié, pas un
+ * pourcentage à la décimale : c'est une hypothèse de travail, et un
+ * chiffre rond le dit plus honnêtement que 50,86 %.
+ *
+ * À rouvrir une fois les pilotes mesurés.
  */
-export const TAUX_RECUPERATION = 0.5086
+export const TAUX_RECUPERATION = 1 / 2
 
 export const SEMAINES_PAR_MOIS = 52 / 12
 
 /*
- * LA formule du potentiel. Calculateur, cartes Tarifs et tableau de bord la
- * partagent : un seul endroit à modifier, aucun chiffre qui diverge.
+ * LA formule du potentiel. Calculateur et cartes Tarifs la partagent :
+ * un seul endroit à modifier, aucun chiffre qui diverge d'un écran à
+ * l'autre.
  *
- *   perte / an      = absences par semaine × prestation × 52
- *   récupérable / an = perte / an × TAUX_RECUPERATION
- *   retour          = récupérable par mois ÷ prix mensuel de l'offre
+ *   créneaux récupérés / mois = (perdus par semaine ÷ 2) × 52 / 12
+ *   gain mensuel              = créneaux récupérés × prestation
+ *   retour                    = gain mensuel ÷ prix de l'offre
+ *
+ * Le nombre de créneaux est arrondi AVANT d'être converti en francs.
+ * Sans cela l'écran affiche « 43 créneaux » et « 216 667 F », et une
+ * gérante qui divise l'un par l'autre trouve 5 039 F au lieu des 5 000 F
+ * qu'elle vient de saisir. Les deux chiffres doivent tomber juste
+ * ensemble : 20 absences → 43 créneaux → 215 000 F.
  */
 export function potentiel(absencesSemaine, ticket, mensuel) {
   const perteSemaine = absencesSemaine * ticket
   const perteAn = perteSemaine * 52
-  const recuperableAn = perteAn * TAUX_RECUPERATION
-  const recuperableMois = recuperableAn / 12
+
+  const creneauxSemaine = absencesSemaine * TAUX_RECUPERATION
+  const creneauxMois = Math.round(creneauxSemaine * SEMAINES_PAR_MOIS)
+
+  const recuperableMois = creneauxMois * ticket
+  const recuperableAn = recuperableMois * 12
 
   return {
     perteSemaine,
@@ -153,8 +199,8 @@ export function potentiel(absencesSemaine, ticket, mensuel) {
     perteAn,
     recuperableAn,
     recuperableMois,
-    creneauxSemaine: absencesSemaine * TAUX_RECUPERATION,
-    creneauxMois: absencesSemaine * TAUX_RECUPERATION * SEMAINES_PAR_MOIS,
+    creneauxSemaine,
+    creneauxMois,
     roi: mensuel > 0 ? recuperableMois / mensuel : 0,
   }
 }
@@ -355,22 +401,31 @@ export const BADGE_OFFRE = 'Recommandé'
 /*
  * Garantie premier mois.
  *
- * Le texte dit exactement ce que fait le code : `evaluer_la_garantie`
- * dans paiements/credit.py recrédite JOURS_GARANTIE = 30 jours. Elle ne
- * rembourse pas d'argent, elle offre le mois suivant — dire
- * « remboursée » serait promettre autre chose que ce qui se passe.
+ * ┌─────────────────────────────────────────────────────────────────┐
+ * │ À TRANCHER — le site et le code ne disent pas la même chose.     │
+ * │                                                                  │
+ * │ Ce texte promet un REMBOURSEMENT. Or `evaluer_la_garantie`, dans │
+ * │ belya-app/paiements/credit.py, recrédite JOURS_GARANTIE = 30     │
+ * │ jours : elle offre le mois suivant, elle ne rend pas d'argent.   │
+ * │                                                                  │
+ * │ L'un des deux doit bouger. Rembourser suppose un versement       │
+ * │ sortant en mobile money, qui n'existe pas encore et demande le   │
+ * │ compte marchand — donc, en l'état, la promesse se tiendrait à la │
+ * │ main.                                                            │
+ * └─────────────────────────────────────────────────────────────────┘
  *
- * Le seuil se compte en créneaux sauvés sur les 30 jours qui suivent le
- * premier paiement, et il est fixe : 1 en Solo, 3 en Salon, 6 en
- * Institut, quel que soit le prix de la prestation.
+ * Le seuil est celui du calculateur : récupérer au moins le prix de
+ * l'offre, soit 1 créneau sauvé en Solo, 3 en Salon, 6 en Institut à
+ * 5 000 F la prestation.
  */
 export const GARANTIE = {
   titre: 'Garantie premier mois',
   texte:
-    'Si Belya ne vous fait pas sauver assez de créneaux le premier mois, le mois suivant vous est offert.',
+    'Si Belya ne vous fait pas récupérer au moins le prix de votre offre le premier mois, on vous rembourse.',
   detail:
-    'Seuil sur les 30 jours qui suivent le premier paiement : 1 créneau sauvé en Solo, 3 en Salon, 6 en Institut.',
-  courte: 'Garantie : si le premier mois ne tient pas sa promesse, le suivant est offert.',
+    'À 5 000 F la prestation : 1 créneau sauvé en Solo, 3 en Salon, 6 en Institut.',
+  courte:
+    'Garantie premier mois : remboursée si Belya ne couvre pas son prix.',
 }
 
 export const TARIFS = [
@@ -480,11 +535,11 @@ export const PIED = {
 }
 
 /*
- * Le badge « Système opérationnel » du pied de page.
+ * Ce qui se lit sous le slogan, dans le pied de page.
  *
- * Il est à faux tant que l'application n'est pas en ligne : afficher un
- * point vert clignotant pour un service qui n'existe pas encore est une
- * affirmation fausse, et c'est la première chose qu'une gérante
- * vérifiera. À passer à true le jour du déploiement.
+ * C'était « Système opérationnel », avec un point vert clignotant —
+ * affirmé pour un service qui n'est pas encore déployé. Un lieu, lui,
+ * est vrai en permanence et dit quelque chose d'utile : Belya est
+ * ivoirien, et ses concurrents ne le sont pas.
  */
-export const APPLICATION_EN_LIGNE = false
+export const ANCRAGE = 'Abidjan · Côte d’Ivoire'

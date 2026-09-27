@@ -1,4 +1,4 @@
-import { APPLICATION_EN_LIGNE, PIED, allerA } from '../donnees'
+import { ANCRAGE, PIED, allerA } from '../donnees'
 
 export default function Footer() {
   return (
@@ -14,26 +14,23 @@ export default function Footer() {
             </p>
 
             {/*
-              Le point vert n'apparaît que si l'application est
-              réellement en ligne. L'afficher avant le déploiement
-              affirmerait quelque chose de faux.
+              Un lieu, pas un état de service : c'est vrai en permanence,
+              et le point ne clignote plus — rien ne « bat » ici.
             */}
-            {APPLICATION_EN_LIGNE && (
-              <div className="mt-8 flex items-center gap-2.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-                </span>
-                <span className="micro text-creme/70">Système opérationnel</span>
-              </div>
-            )}
+            <div className="mt-8 flex items-center gap-2.5">
+              <span
+                className="h-2 w-2 shrink-0 rounded-full bg-magenta-clair"
+                aria-hidden="true"
+              />
+              <span className="micro text-creme/70">{ANCRAGE}</span>
+            </div>
           </div>
 
           <div className="grid gap-8 sm:grid-cols-3">
             {PIED.colonnes.map((colonne) => (
               <div key={colonne.titre}>
                 <p className="micro text-creme/75">{colonne.titre}</p>
-                <ul className="mt-5 space-y-3">
+                <ul className="mt-4 space-y-1">
                   {colonne.liens.map((lien) => (
                     <li key={lien.libelle}>
                       {lien.ancre ? (
@@ -43,7 +40,7 @@ export default function Footer() {
                             e.preventDefault()
                             allerA(lien.ancre)
                           }}
-                          className="lift souligne-anime text-left text-[15px] text-creme/70 hover:text-creme"
+                          className="lift souligne-anime inline-flex min-h-[44px] items-center text-left text-[15px] text-creme/70 hover:text-creme"
                         >
                           {lien.libelle}
                         </a>
@@ -67,13 +64,13 @@ export default function Footer() {
             désynchronisation d'hydratation.
           */}
           <p className="legende text-creme/60" suppressHydrationWarning>
-            © {new Date().getFullYear()} Belya · Abidjan, Côte d’Ivoire
+            © {new Date().getFullYear()} Belya
           </p>
           {PIED.legal.length > 0 && (
             <ul className="flex flex-wrap gap-x-6 gap-y-2">
               {PIED.legal.map((lien) => (
                 <li key={lien.libelle}>
-                  <a href={lien.href} className="legende lift text-creme/60 hover:text-creme">
+                  <a href={lien.href} className="legende lift inline-flex min-h-[44px] items-center text-creme/60 hover:text-creme">
                     {lien.libelle}
                   </a>
                 </li>

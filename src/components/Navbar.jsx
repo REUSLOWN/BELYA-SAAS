@@ -69,7 +69,7 @@ export default function Navbar() {
             onClick={() => setOuvert((v) => !v)}
             aria-label={ouvert ? 'Fermer le menu' : 'Ouvrir le menu'}
             aria-expanded={ouvert}
-            className="lift -mr-2.5 flex h-11 w-11 items-center justify-center text-encre md:hidden"
+            className="lift -mr-2.5 flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center text-encre md:hidden"
           >
             {ouvert ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -82,7 +82,7 @@ export default function Navbar() {
                 <button
                   key={lien.ancre}
                   onClick={() => naviguer(lien.ancre)}
-                  className="nav-lien text-left text-encre/85"
+                  className="nav-lien flex min-h-[44px] items-center text-left text-encre/85"
                 >
                   {lien.libelle}
                 </button>

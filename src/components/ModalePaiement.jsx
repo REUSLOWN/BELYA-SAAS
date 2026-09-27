@@ -1,19 +1,31 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ArrowUpRight, X } from 'lucide-react'
-import { ACTIVATION, GARANTIE, PAIEMENTS, fcfa, lienInscription } from '../donnees'
+import {
+  ACTIVATION,
+  GARANTIE,
+  PAIEMENTS,
+  fcfa,
+  lienInscription,
+  lienWhatsApp,
+} from '../donnees'
 
 /*
- * Un seul bouton : vers l'inscription dans l'application. C'est là que
- * la gérante crée son compte, puis paie — et c'est la page de
- * l'agrégateur, pas celle-ci, qui lui fait choisir son opérateur.
+ * Deux chemins, dans cet ordre.
  *
- * Aucun passage par WhatsApp, aucun contact préalable.
+ *   1. **WhatsApp**, en principal : le message part déjà écrit, avec
+ *      l'offre et le montant. C'est le canal que les gérantes d'Abidjan
+ *      utilisent déjà, et il ne demande ni compte ni mot de passe.
+ *   2. **L'inscription en ligne**, en secondaire, quand APP_URL est
+ *      renseignée.
  *
- * Les quatre pastilles sont de l'information, pas des boutons : un
- * paiement encaissé avant l'inscription n'aurait personne à créditer.
- * Si APP_URL est vide, le bouton s'affiche comme indisponible plutôt que
- * de mener dans le vide.
+ * Chaque bouton disparaît si sa destination n'est pas configurée : un
+ * bouton grisé n'apprend rien à personne. Si les deux manquent, la
+ * fenêtre le dit en toutes lettres.
+ *
+ * Les quatre pastilles restent de l'information, pas des boutons : un
+ * paiement encaissé avant l'inscription n'aurait personne à créditer, et
+ * c'est la page de l'agrégateur qui fait choisir l'opérateur.
  */
 export default function ModalePaiement({ offre, onFermer }) {
   const racine = useRef(null)
@@ -54,6 +66,10 @@ export default function ModalePaiement({ offre, onFermer }) {
 
   // Même onglet : l'inscription est la suite du parcours, pas un aparté.
   const destination = lienInscription(offre)
+
+  // WhatsApp, lui, s'ouvre à côté : on ne fait pas quitter la page à
+  // quelqu'un qui bascule vers une application de messagerie.
+  const whatsapp = lienWhatsApp(offre)
 
   return (
     <div
@@ -111,12 +127,19 @@ export default function ModalePaiement({ offre, onFermer }) {
 
         <p className="legende mt-3 font-semibold text-encre/80">{GARANTIE.courte}</p>
 
-        {destination ? (
+        {/*
+          Chemin principal : WhatsApp. Le message part déjà écrit, avec
+          l'offre et le montant — la gérante n'a ni à expliquer ce
+          qu'elle veut, ni à retrouver le prix qu'elle vient de lire.
+        */}
+        {whatsapp && (
           <a
-            href={destination}
-            className="magnetique group mt-7 flex w-full items-center justify-center gap-2 rounded-[1.25rem] bg-magenta px-5 py-4 text-[15px] font-extrabold tracking-serre text-creme transition-all duration-300 hover:shadow-[0_14px_40px_-18px_rgba(194,24,91,0.8)]"
+            href={whatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="magnetique group mt-7 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[1.25rem] bg-magenta px-5 py-4 text-[15px] font-extrabold tracking-serre text-creme transition-all duration-300 hover:shadow-[0_14px_40px_-18px_rgba(194,24,91,0.8)]"
           >
-            {ACTIVATION.cta}
+            {ACTIVATION.ctaWhatsApp}
             <ArrowUpRight
               size={18}
               strokeWidth={2.5}
@@ -124,18 +147,26 @@ export default function ModalePaiement({ offre, onFermer }) {
               aria-hidden="true"
             />
           </a>
-        ) : (
-          <button
-            type="button"
-            disabled
-            className="mt-7 flex w-full cursor-not-allowed items-center justify-center rounded-[1.25rem] border border-encre/10 bg-white/30 px-5 py-4 text-[15px] font-extrabold tracking-serre text-encre/40"
+        )}
+
+        {/*
+          Chemin secondaire : l'inscription en ligne. Elle n'apparaît que
+          si APP_URL est renseignée — un bouton désactivé sous un bouton
+          actif n'apprend rien.
+        */}
+        {destination && (
+          <a
+            href={destination}
+            className={`lift flex min-h-[44px] w-full items-center justify-center rounded-[1.25rem] border border-encre/15 px-5 py-4 text-[15px] font-semibold tracking-serre text-encre/80 transition-colors duration-300 hover:border-magenta hover:text-encre ${
+              whatsapp ? 'mt-3' : 'mt-7'
+            }`}
           >
             {ACTIVATION.cta}
-          </button>
+          </a>
         )}
 
         <p className="legende mt-4 text-encre/60">
-          {destination ? ACTIVATION.mention : ACTIVATION.indisponible}
+          {whatsapp || destination ? ACTIVATION.mention : ACTIVATION.indisponible}
         </p>
 
         <p className="micro mt-7 text-aubergine">{ACTIVATION.moyensAcceptes}</p>
