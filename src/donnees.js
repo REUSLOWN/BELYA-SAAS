@@ -525,10 +525,13 @@ export const PIED = {
     },
   ],
   /*
-   * Pages légales, servies en HTML statique depuis public/. Elles portent
-   * des marqueurs [À COMPLÉTER] partout où il manque une information que
-   * seul le propriétaire détient — RCCM, adresse, e-mail. Une mention
-   * légale inventée vaut moins que pas de mention.
+   * Pages légales, servies en HTML statique depuis public/.
+   *
+   * Elles sont entièrement renseignées. Deux mentions restent
+   * provisoires et devront être corrigées le jour où elles aboutissent :
+   * le RCCM, « en cours d'immatriculation », et la déclaration ARTCI,
+   * « en cours ». Les trois pages les reprennent, donc les trois sont à
+   * modifier ensemble.
    */
   legal: [
     { libelle: 'Mentions légales', href: '/mentions-legales.html' },
