@@ -115,7 +115,7 @@ export const ACTIVATION = {
   cta: 'Continuer vers l’inscription',
   moyensAcceptes: 'Moyens acceptés',
   mention:
-    'Vous créez votre compte en 1 minute, puis vous payez par Orange Money, MTN MoMo, Moov Money ou Wave.',
+    'Écrivez-nous : on active votre compte avec vous, puis vous payez par Orange Money, MTN MoMo, Moov Money ou Wave.',
   indisponible: 'Inscriptions bientôt ouvertes.',
 }
 

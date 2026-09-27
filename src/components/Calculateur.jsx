@@ -126,8 +126,11 @@ export default function Calculateur() {
       semaine: p.perteSemaine,
       mois: p.perteMois,
       annee: p.perteAn,
-      recuperableAn: p.recuperableAn,
-      creneauxSauves: p.creneauxSemaine,
+      // Le mois, et non l'année : la ligne de retour juste en dessous
+      // compare un gain mensuel à un prix mensuel. Afficher un montant
+      // annuel à côté d'un « retour 14,3× » ne se vérifie pas de tête.
+      recuperableMois: p.recuperableMois,
+      creneauxMois: p.creneauxMois,
       offre,
       roi: p.roi,
       note: noteSeuil(offre.mensuel, ticket),
@@ -135,14 +138,15 @@ export default function Calculateur() {
   }, [absences, valeurs])
 
   /*
-   * Jamais d'arrondi qui gonfle la promesse : sous 4 absences, 0,5 créneau
-   * arrondi à 1 doublerait l'estimation. On parle alors de proportion.
+   * La phrase nomme le nombre de créneaux qui produit le montant affiché
+   * juste au-dessus. C'est ce qui rend le chiffre vérifiable : 43
+   * créneaux × 5 000 F = 215 000 F, et la gérante peut faire la division.
    */
   const phraseRecuperation = (() => {
     if (absences === 0) return 'Aucun créneau perdu cette semaine : rien à récupérer.'
+    const n = calcul.creneauxMois
     const perdus = `Sur ${absences} créneau${absences > 1 ? 'x' : ''} perdu${absences > 1 ? 's' : ''} par semaine`
-    if (absences < 4) return `${perdus}, Belya vise à en rendre 1 sur 2 vendable.`
-    return `${perdus}, Belya peut en rendre environ ${Math.round(calcul.creneauxSauves)} vendables.`
+    return `${perdus}, Belya vise à en rendre ${n} vendable${n > 1 ? 's' : ''} par mois.`
   })()
 
   useEffect(() => {
@@ -350,8 +354,8 @@ export default function Calculateur() {
               <div className="mt-8 rounded-[1.25rem] border border-creme/15 bg-creme/[0.06] p-5">
                 <p className="micro text-creme/75">{AHA.recuperation}</p>
                 <p className="mt-2 text-[1.5rem] font-extrabold tabular-nums tracking-tresserre text-creme">
-                  <Compteur valeur={calcul.recuperableAn} format={fcfa} />
-                  <span className="legende ml-2 font-normal text-creme/65">par an</span>
+                  <Compteur valeur={calcul.recuperableMois} format={fcfa} />
+                  <span className="legende ml-2 font-normal text-creme/65">par mois</span>
                 </p>
                 <p className="legende mt-2 text-creme/70">{phraseRecuperation}</p>
               </div>
