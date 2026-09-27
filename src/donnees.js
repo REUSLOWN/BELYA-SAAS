@@ -42,18 +42,24 @@
 export const APP_URL = ''
 
 /*
- * Numéro commercial WhatsApp, au format international sans « + » —
- * par exemple 2250700000000. Il vient de l'environnement Vite, donc
- * VITE_WHATSAPP_COMMERCIAL dans le .env de Vercel.
+ * Numéro commercial WhatsApp : 05 46 00 96 66.
  *
- * Attention : une variable VITE_ est incorporée au bundle et donc
- * publique. C'est acceptable pour un numéro affiché de toute façon, ce
- * ne le serait pas pour une clé.
+ * Écrit ici et non seulement dans l'environnement, parce que c'est du
+ * contenu de page comme le reste de ce fichier — et parce qu'un numéro
+ * absent du build ferait disparaître le bouton en silence le jour du
+ * déploiement, si la variable était oubliée dans le tableau de bord
+ * Vercel.
  *
- * Vide ⇒ le bouton ne s'affiche pas, plutôt que de mener dans le vide.
+ * `VITE_WHATSAPP_COMMERCIAL` reste prioritaire : elle permet de changer
+ * de numéro sans toucher au code, ou d'en pointer un autre sur une
+ * préproduction.
+ *
+ * Format wa.me : international, sans « + » ni espace. 2250546009666 est
+ * ce que rend `belya.telephone.normaliser('0546009666')`, privé de son
+ * « + » — les deux dépôts parlent donc du même numéro.
  */
 export const WHATSAPP_COMMERCIAL =
-  import.meta.env?.VITE_WHATSAPP_COMMERCIAL ?? ''
+  import.meta.env?.VITE_WHATSAPP_COMMERCIAL || '2250546009666'
 
 /*
  * Destination WhatsApp pour une offre, message déjà écrit. La gérante
