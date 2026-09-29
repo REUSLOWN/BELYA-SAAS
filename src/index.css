@@ -192,6 +192,26 @@
   .souligne-anime:hover {
     background-size: 100% 1px;
   }
+
+  /*
+   * Lignes de titre découpées par SplitText (voir src/lib/mouvement.js).
+   *
+   * Le masque rogne ce qui dépasse pour que la ligne monte « de dessous
+   * le papier ». Problème : il rogne aussi les jambages du Cormorant
+   * italique — le « g » de « gérante » perdait sa boucle. On donne donc
+   * de l'air sous chaque ligne, et on le reprend sur le masque pour que
+   * l'interligne du titre ne bouge pas d'un pixel.
+   *
+   * Ces classes n'existent que pendant l'animation : `revert()` les
+   * retire et rend le titre d'origine.
+   */
+  .ligne-titre {
+    padding-bottom: 0.14em;
+  }
+
+  .ligne-titre-mask {
+    margin-bottom: -0.14em;
+  }
 }
 
 /*
