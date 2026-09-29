@@ -11,8 +11,7 @@ import Calculateur from './components/Calculateur'
 import SceneRevente from './components/SceneRevente'
 import DemoWhatsApp from './components/DemoWhatsApp'
 import Fonctionnalites from './components/Fonctionnalites'
-import Philosophie from './components/Philosophie'
-import Protocole from './components/Protocole'
+import Mecaniques from './components/Mecaniques'
 import Tarifs from './components/Tarifs'
 import Footer from './components/Footer'
 
@@ -71,8 +70,12 @@ export default function App() {
         */}
         <DemoWhatsApp />
         <Fonctionnalites />
-        <Philosophie />
-        <Protocole />
+        {/*
+          Les trois mécaniques. Cette section remplace les anciennes
+          « Philosophie » et « Protocole » : elles disaient la même chose
+          deux fois, à deux endroits de la page.
+        */}
+        <Mecaniques />
         <Tarifs />
       </main>
       <Footer />

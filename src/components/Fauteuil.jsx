@@ -37,13 +37,24 @@ export default function Fauteuil() {
   /*
    * `false` = flux normal, les deux panneaux empilés. C'est l'état du
    * pré-rendu, donc l'état que voit quiconque n'exécute pas le script.
-   * On ne passe en superposé qu'après montage, et jamais en mouvement
-   * réduit : superposer sans animer laisserait un panneau caché.
+   * On ne passe en superposé qu'après montage, et à trois conditions :
+   *
+   *   - le mouvement est autorisé — superposer sans animer laisserait un
+   *     panneau caché ;
+   *   - l'écran est assez grand. Sur mobile, demander deux écrans et
+   *     demi de pouce pour un seul balayage est une corvée, et la barre
+   *     d'adresse qui change de hauteur à chaque geste fait sauter la
+   *     mise en page ;
+   *   - la préférence peut changer en cours de route : on écoute.
    */
   const [superpose, setSuperpose] = useState(false)
 
   useEffect(() => {
-    if (!mouvementReduit()) setSuperpose(true)
+    const requete = window.matchMedia('(min-width: 1024px)')
+    const lire = () => setSuperpose(requete.matches && !mouvementReduit())
+    lire()
+    requete.addEventListener('change', lire)
+    return () => requete.removeEventListener('change', lire)
   }, [])
 
   useEffect(() => {
