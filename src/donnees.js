@@ -80,6 +80,22 @@ export function lienWhatsApp(offre) {
 }
 
 /*
+ * La même destination, sans offre choisie : pour l'appel final et la
+ * barre fixe du bas, où la visiteuse n'a encore rien sélectionné. Le
+ * message reste rédigé — une conversation qui commence par « Bonjour »
+ * tout seul oblige la gérante à expliquer ce qu'elle veut.
+ */
+export function lienWhatsAppGeneral() {
+  if (!WHATSAPP_COMMERCIAL) return null
+
+  const numero = String(WHATSAPP_COMMERCIAL).replace(/[^0-9]/g, '')
+  if (!numero) return null
+
+  const message = 'Bonjour, je veux activer Belya pour mon salon.'
+  return `https://wa.me/${numero}?text=${encodeURIComponent(message)}`
+}
+
+/*
  * Les quatre portefeuilles mobiles de Côte d'Ivoire, pour information.
  * Les couleurs sont approchées : remplacer par les chartes officielles
  * de chaque opérateur avant mise en ligne (les logos sont des marques

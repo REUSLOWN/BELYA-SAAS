@@ -5,6 +5,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { demarrerDefilement } from './lib/defilement'
 
 import Navbar from './components/Navbar'
+import Progression from './components/Progression'
+import BarreFixe from './components/BarreFixe'
 import HeroCinema from './components/HeroCinema'
 import Fauteuil from './components/Fauteuil'
 import Calculateur from './components/Calculateur'
@@ -13,6 +15,8 @@ import DemoWhatsApp from './components/DemoWhatsApp'
 import Mecaniques from './components/Mecaniques'
 import TableauBord from './components/TableauBord'
 import Tarifs from './components/Tarifs'
+import Faq from './components/Faq'
+import AppelFinal from './components/AppelFinal'
 import Footer from './components/Footer'
 
 /*
@@ -50,6 +54,7 @@ export default function App() {
    */
   return (
     <div className="grain relative min-h-screen">
+      <Progression />
       <Navbar />
       <main>
         <HeroCinema />
@@ -82,8 +87,15 @@ export default function App() {
         */}
         <TableauBord />
         <Tarifs />
+        {/*
+          Les objections après le prix, pas avant : on ne répond aux
+          questions de quelqu'un qu'une fois qu'il s'est posé la vraie.
+        */}
+        <Faq />
+        <AppelFinal />
       </main>
       <Footer />
+      <BarreFixe />
     </div>
   )
 }

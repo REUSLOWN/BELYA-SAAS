@@ -6,10 +6,19 @@ import Bouton from './Bouton'
 /*
  * L'île flottante. Le héros étant désormais crème, le texte est sombre dès
  * le départ : seul le fond flouté et la bordure apparaissent au scroll.
+ *
+ * Elle se retire aussi quand on descend, et revient quand on remonte.
+ * Sur une page longue lue au pouce, une barre qui occupe le haut de
+ * l'écran en permanence coûte une ligne de texte à chaque écran ; la
+ * faire revenir au moindre geste vers le haut rend la navigation sans
+ * qu'on l'ait cherchée. Le seuil de 14 px évite qu'elle clignote au
+ * rebond élastique d'iOS, et le menu ouvert la retient toujours —
+ * escamoter un menu qu'on vient d'ouvrir serait une trahison.
  */
 export default function Navbar() {
   const [pose, setPose] = useState(false)
   const [ouvert, setOuvert] = useState(false)
+  const [cachee, setCachee] = useState(false)
 
   useEffect(() => {
     const cible = document.getElementById('sentinelle-hero')
@@ -24,13 +33,38 @@ export default function Navbar() {
     return () => observateur.disconnect()
   }, [])
 
+  useEffect(() => {
+    let dernier = window.scrollY
+
+    const auDefilement = () => {
+      const y = window.scrollY
+      const delta = y - dernier
+
+      // Sous 14 px de mouvement, on ne décide rien : c'est le rebond
+      // élastique, pas une intention.
+      if (Math.abs(delta) < 14) return
+      dernier = y
+
+      // Dans les cent premiers pixels, on ne se cache jamais : le haut
+      // de page est l'endroit où l'on cherche la navigation.
+      setCachee(delta > 0 && y > 100)
+    }
+
+    window.addEventListener('scroll', auDefilement, { passive: true })
+    return () => window.removeEventListener('scroll', auDefilement)
+  }, [])
+
   const naviguer = (ancre) => {
     setOuvert(false)
     allerA(ancre)
   }
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 sm:pt-6">
+    <header
+      className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] sm:pt-6 ${
+        cachee && !ouvert ? '-translate-y-[130%]' : 'translate-y-0'
+      }`}
+    >
       <nav
         className={`pointer-events-auto w-full max-w-5xl rounded-[2rem] border transition-all duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
           pose
