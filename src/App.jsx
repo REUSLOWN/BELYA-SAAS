@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Calculateur from './components/Calculateur'
+import SceneRevente from './components/SceneRevente'
 import Fonctionnalites from './components/Fonctionnalites'
 import Philosophie from './components/Philosophie'
 import Protocole from './components/Protocole'
@@ -39,6 +40,11 @@ export default function App() {
       <main>
         <Hero />
         <Calculateur />
+        {/*
+          Juste après le calculateur : elle vient de voir ce qu'elle perd,
+          on lui montre aussitôt comment ça se récupère.
+        */}
+        <SceneRevente />
         <Fonctionnalites />
         <Philosophie />
         <Protocole />

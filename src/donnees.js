@@ -350,12 +350,52 @@ export const ARGUMENTS = {
     jours: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
     jourCible: 5,
     releve: [
-      // Profil Salon : 20 × 0,5086 × 52 / 12 = 44 créneaux ; 44 × 5 000 F = 220 000 F.
-      { cle: 'Créneaux sauvés', valeur: '44' },
-      { cle: 'Gain du mois', valeur: '220 000 F' },
+      // Profil Salon, avec la formule unifiée de potentiel() :
+      // 20 perdus par semaine ÷ 2 × 52 / 12 = 43 créneaux ;
+      // 43 × 5 000 F = 215 000 F. Les deux chiffres doivent rester ceux
+      // que le calculateur affiche, sinon la page se contredit.
+      { cle: 'Créneaux sauvés', valeur: '43' },
+      { cle: 'Gain du mois', valeur: '215 000 F' },
     ],
     bouton: 'Enregistrer',
   },
+}
+
+/*
+ * LA SCÈNE — le mécanisme montré, pas expliqué.
+ *
+ * Le reste de la page raconte comment Belya récupère un créneau perdu.
+ * Cette section le donne à voir : une place se vide, la liste d'attente
+ * s'allume, « OUI » revient, l'argent avec.
+ *
+ * Aucune vidéo. Le dessin est en SVG animé, donc il ne coûte rien à
+ * télécharger — décisif pour une gérante en 3G qui paie son forfait au
+ * méga-octet. Voir l'en-tête de SceneRevente.jsx.
+ *
+ * `gain` est le prix d'une prestation, pas un cumul : c'est UNE place
+ * revendue qu'on montre, celle de samedi 14 h.
+ */
+export const SCENE = {
+  surtitre: 'Ce qui se passe quand une cliente annule',
+  titreSans: 'Une place se vide.',
+  titreSerif: 'Elle se remplit.',
+  chapo:
+    'Samedi, 14 h. Awa annule. Sans Belya, la place reste vide et la journée est amputée. Avec Belya, elle repart en trente minutes.',
+  agenda: 'VOTRE SEMAINE',
+  attente: 'EN LISTE D’ATTENTE',
+  candidates: ['Fatou D.', 'Mariam T.', 'Aïcha B.'],
+  gainLibelle: 'RÉCUPÉRÉ',
+  gain: 5000,
+  etapes: [
+    'Votre semaine est pleine. Chaque place est une prestation vendue.',
+    'Samedi 14 h : Awa annule. La place se vide.',
+    'Belya prévient aussitôt vos clientes en attente.',
+    'Fatou répond « OUI ». La place est reprise.',
+    'La prestation est sauvée. Vous n’avez rien eu à faire.',
+  ],
+  // Lue par les lecteurs d'écran à la place du dessin.
+  alternative:
+    'Un agenda de la semaine dont une place du samedi se libère, puis se remplit à nouveau grâce à la liste d’attente.',
 }
 
 export const MANIFESTE = {
