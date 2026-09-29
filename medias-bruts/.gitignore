@@ -1,0 +1,5 @@
+# Les rendus bruts de Higgsfield atterrissent ici, hors de public/.
+# Ils ne sont jamais versionnés : seuls les fichiers post-traités dans
+# public/video et public/medias le sont.
+*
+!.gitignore

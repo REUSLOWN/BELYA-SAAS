@@ -166,8 +166,19 @@ export const HERO = {
   surtitre: 'Abidjan · Salons, instituts et prestataires à domicile',
   titreSans: 'Le créneau vide est le',
   titreSerif: 'vrai coût.',
+  /*
+   * WhatsApp est nommé dès le chapô. C'est le canal réel des clientes
+   * d'Abidjan, et l'omettre laissait la visiteuse imaginer une
+   * application à faire installer — l'objection numéro un.
+   */
   chapo:
-    "433 000 F s'évaporent chaque mois d'un salon de trois postes. L'objectif de Belya : en rendre la moitié vendable, sans rien installer pour vos clientes.",
+    "433 000 F s'évaporent chaque mois d'un salon de trois postes. L'objectif de Belya : en rendre la moitié vendable. Rappels et liste d'attente sur WhatsApp, sans rien installer pour vos clientes.",
+  /*
+   * Le prix apparaît sous les boutons, pas seulement en bas de page.
+   * Une gérante qui doit défiler six sections pour savoir combien ça
+   * coûte se demande ce qu'on lui cache.
+   */
+  micro: 'Dès 3 000 F / mois · crédit prépayé · sans engagement',
   /*
    * Mêmes chiffres que le profil « Salon » du calculateur, pour que le visiteur
    * retrouve exactement ce qu'il vient de lire : 20 absences × 52 / 12 = 87 par
@@ -377,6 +388,48 @@ export const ARGUMENTS = {
 }
 
 /*
+ * LES MÉDIAS — un seul endroit, des champs vides tant qu'ils manquent.
+ *
+ * Règle absolue : **chaque section doit être entière et soignée sans
+ * son média**. Un champ vide ne produit jamais un cadre vide, une
+ * erreur 404 ou un trou dans la page — il produit une version
+ * typographique qui se tient seule. La page complète doit être belle
+ * avant que le premier fichier n'arrive.
+ *
+ * Le cahier des charges de production est dans
+ * `docs/refonte/PROMPTS-HIGGSFIELD.md` : sujet, cadrage, durée, poids
+ * maximal, et les commandes ffmpeg de post-traitement.
+ *
+ * Les rendus bruts vont dans `medias-bruts/` (non versionné). Seuls les
+ * fichiers post-traités entrent dans `public/`.
+ */
+export const MEDIAS = {
+  // S1 — le héros
+  heroVideo: '',          // public/video/salon.mp4        · 6 Mo max
+  heroAffiche: '',        // public/video/salon-affiche.jpg · 180 Ko max
+  heroVideoMobile: '',    // public/video/salon-mobile.mp4  · 2,5 Mo max
+
+  // S2 — le créneau vide, puis rempli. MÊME cadrage exact : la page
+  // fait glisser l'une sur l'autre.
+  fauteuilVide: '',       // public/medias/fauteuil-vide.jpg
+  fauteuilOccupe: '',     // public/medias/fauteuil-occupe.jpg
+
+  // S4 — le support de la démo. Écran noir, parfaitement de face : la
+  // conversation est en HTML par-dessus, jamais dans l'image.
+  telephone: '',          // public/medias/telephone.jpg
+
+  // S5 — bandeau de parallaxe entre deux panneaux
+  mains: '',              // public/medias/mains-tresses.jpg
+
+  // S7 — illustration du bloc garantie. JAMAIS présentée comme une
+  // cliente réelle, jamais accompagnée d'un témoignage.
+  gerante: '',            // public/medias/gerante.jpg
+
+  // S9 — fond de l'appel final, 35 % d'opacité
+  boucle: '',             // public/video/boucle.mp4 · 1,5 Mo max
+}
+
+/*
  * LA VIDÉO DU HERO — à déposer, pas à inventer.
  *
  * Le mécanisme est écrit et fonctionne : la section se fige, le
@@ -450,6 +503,165 @@ export const SCENE = {
   // Lue par les lecteurs d'écran à la place du dessin.
   alternative:
     'Un agenda de la semaine dont une place du samedi se libère, puis se remplit à nouveau grâce à la liste d’attente.',
+}
+
+/*
+ * S2 — LE CRÉNEAU VIDE, PUIS REMPLI.
+ *
+ * Deux photos au cadrage identique, l'une révélée sur l'autre par un
+ * rideau au défilement. C'est la promesse du produit en une image, sans
+ * une ligne d'explication.
+ *
+ * Sans les photos : la même bascule de texte sur un fond typographique.
+ * La section garde son sens.
+ */
+export const FAUTEUIL = {
+  surtitre: 'Samedi, 14 h',
+  avant: {
+    titreSans: 'Un fauteuil vide.',
+    titreSerif: '5 000 F perdus.',
+    texte:
+      'La cliente a annulé ce matin. Sans rien pour la remplacer, la place reste vide jusqu’à la fermeture.',
+  },
+  apres: {
+    titreSans: 'Même fauteuil, même heure.',
+    titreSerif: 'Revendu en 30 minutes.',
+    texte:
+      'Belya a proposé la place à votre liste d’attente. Fatou a répondu. Vous n’avez rien eu à faire.',
+  },
+  alternative:
+    'Un fauteuil de salon vide, puis le même fauteuil occupé par une cliente.',
+}
+
+/*
+ * S4 — LA DÉMO QU'ON ESSAIE.
+ *
+ * La conversation est en HTML par-dessus un écran noir : nette,
+ * traduisible, sans les lettres déformées de l'IA. La visiteuse répond
+ * à la place d'Awa et voit les deux branches — c'est ce qui fait
+ * comprendre le mécanisme en dix secondes.
+ */
+export const DEMO = {
+  surtitre: 'Essayez, répondez à sa place',
+  titreSans: 'Le rappel qui',
+  titreSerif: 'exige une réponse.',
+  chapo:
+    'À J-1, Awa reçoit ce message. Ce qu’elle répond décide de votre samedi. Répondez à sa place.',
+  invite: 'Répondez à la place d’Awa',
+  choixOui: 'OUI',
+  choixAnnuler: 'Annuler',
+  rejouer: 'Rejouer',
+  legende: ['Confirmer', 'Libérer', 'Revendre'],
+  // Les bulles. `sens` vaut 'recu' (du salon vers Awa) ou 'envoye'.
+  rappel: {
+    heure: '18:00',
+    sens: 'recu',
+    texte:
+      'Rappel de Maison Dorée : vous avez rendez-vous demain à 14:00 pour Tresses medium. Répondez OUI pour confirmer.',
+  },
+  branches: {
+    oui: {
+      reponse: { heure: '18:04', sens: 'envoye', texte: 'OUI' },
+      etat: 'Confirmé',
+      note: 'Awa a confirmé. Le créneau est sûr, et le rappel de deux heures lui partira gratuitement.',
+      etape: 0,
+    },
+    annuler: {
+      reponse: { heure: '18:04', sens: 'envoye', texte: 'Je ne peux plus venir' },
+      etat: 'Libéré',
+      note: 'La place part à la liste d’attente. Trois clientes sont prévenues.',
+      etape: 1,
+      suite: [
+        {
+          heure: '18:05',
+          sens: 'recu',
+          texte:
+            'Fatou, suite à votre inscription en liste d’attente : une place s’est libérée chez Maison Dorée demain à 14:00. Elle vous est réservée 30 minutes.',
+        },
+        { heure: '18:09', sens: 'envoye', texte: 'Je prends !' },
+      ],
+      final: 'Revendu',
+      noteFinale: 'La place est reprise. 5 000 F qui allaient disparaître.',
+      etapeFinale: 2,
+    },
+  },
+  gain: 5000,
+  attente: ['Fatou D.', 'Mariam T.', 'Aïcha B.'],
+}
+
+/*
+ * S8 — LA FAQ.
+ *
+ * ⚠️ RÈGLE : chaque réponse est vérifiée dans `../belya-app/`, en
+ * lecture seule. Aucune n'est écrite de mémoire ou par déduction. La
+ * source est citée en commentaire pour que la vérification soit
+ * rejouable. Une question dont la réponse cesse d'être vraie doit être
+ * retirée, pas réécrite au jugé.
+ */
+export const FAQ = [
+  {
+    // Vérifié : public/urls.py — dix adresses publiques, toutes des
+    // pages web. Aucune application cliente n'existe dans le produit.
+    question: 'Mes clientes doivent-elles installer une application ?',
+    reponse:
+      'Non, et c’est le cœur du parti pris. Votre cliente reçoit un lien, ouvre une page web et choisit son créneau. Les rappels arrivent sur WhatsApp, qu’elle a déjà. Rien à télécharger, rien à créer comme compte.',
+  },
+  {
+    // Vérifié : messagerie/taches.py, marquer_a_risque() —
+    // « On ne l'annule jamais : on la signale à la gérante, qui décide. »
+    // Le bouton « Libérer ce créneau » est dans templates/gerante/aujourdhui.html.
+    question: 'Et si une cliente ne répond pas au rappel ?',
+    reponse:
+      'Quatre heures avant, le rendez-vous passe « à risque » sur votre agenda. Belya ne l’annule jamais à votre place : il vous signale le doute, et vous proposez de libérer la place en un bouton. C’est vous qui décidez.',
+  },
+  {
+    // Vérifié : paiements/credit.py (consommer_un_jour → EPUISE),
+    // messagerie/taches.py (_rappels_suspendus), public/views.py (503).
+    // « Blocage doux : rien n'est annulé. »
+    question: 'Que se passe-t-il quand mon crédit arrive à zéro ?',
+    reponse:
+      'Votre agenda reste lisible, mais plus modifiable, et votre page de réservation annonce une indisponibilité temporaire. Aucune donnée n’est supprimée, aucun rendez-vous n’est annulé. Une recharge réactive tout immédiatement. Vous êtes prévenue à 5 jours, 2 jours, puis à zéro.',
+  },
+  {
+    // Vérifié : comptes/inscription.py — quatre champs, puis un code à
+    // six chiffres. Le compte est actif dès le code validé.
+    question: 'Combien de temps pour démarrer ?',
+    reponse:
+      'Quatre champs : le nom de votre salon, votre numéro WhatsApp, votre quartier et votre formule. Vous recevez un code à six chiffres, vous le saisissez, et votre page de réservation existe. Vos horaires et vos prestations se règlent ensuite, à votre rythme.',
+  },
+  {
+    // Vérifié : public/conditions.html §11 — « Aucun engagement de
+    // durée. Vous cessez d'utiliser Belya en ne rechargeant plus. »
+    question: 'Puis-je arrêter quand je veux ?',
+    reponse:
+      'Oui. Il n’y a aucun engagement de durée et aucun prélèvement automatique : vous achetez des jours, et vous cessez en ne rechargeant plus. Les jours achetés restent valables douze mois, et votre compte se réactive à tout moment.',
+  },
+  {
+    // Vérifié : belya/cloisonnement.py (filtrage par établissement),
+    // comptes/models.py JournalAcces (trace des consultations admin),
+    // public/confidentialite.html.
+    question: 'Qui voit les numéros de mes clientes ?',
+    reponse:
+      'Vous seule. Chaque requête est filtrée par salon, et des tests automatisés vérifient sur chaque page qu’un salon ne voit jamais les données d’un autre. Toute consultation depuis l’administration laisse une trace nominative : on peut répondre à « qui a regardé quoi, et quand ».',
+  },
+]
+
+/*
+ * S9 — L'APPEL FINAL.
+ *
+ * Une seule phrase, très grande, et un bouton. Pas de formulaire, pas
+ * de champ e-mail : le canal, c'est WhatsApp.
+ */
+export const FINAL = {
+  titreSans: 'Samedi prochain,',
+  titreSerif: 'aucun fauteuil vide.',
+  micro: 'Garantie premier mois · sans engagement · dès 3 000 F',
+}
+
+/* La barre fixe du bas, sur mobile, après le héros. */
+export const BARRE_MOBILE = {
+  prix: 'Dès 3 000 F / mois',
+  action: 'WhatsApp',
 }
 
 export const MANIFESTE = {
