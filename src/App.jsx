@@ -10,8 +10,8 @@ import Fauteuil from './components/Fauteuil'
 import Calculateur from './components/Calculateur'
 import SceneRevente from './components/SceneRevente'
 import DemoWhatsApp from './components/DemoWhatsApp'
-import Fonctionnalites from './components/Fonctionnalites'
 import Mecaniques from './components/Mecaniques'
+import TableauBord from './components/TableauBord'
 import Tarifs from './components/Tarifs'
 import Footer from './components/Footer'
 
@@ -69,13 +69,18 @@ export default function App() {
           après l'autre, dans cet ordre : on regarde, puis on touche.
         */}
         <DemoWhatsApp />
-        <Fonctionnalites />
         {/*
           Les trois mécaniques. Cette section remplace les anciennes
           « Philosophie » et « Protocole » : elles disaient la même chose
           deux fois, à deux endroits de la page.
         */}
         <Mecaniques />
+        {/*
+          Puis ce qu'elle verra le mois prochain. Après les mécaniques,
+          parce qu'un tableau de bord ne veut rien dire avant qu'on sache
+          ce qui le remplit.
+        */}
+        <TableauBord />
         <Tarifs />
       </main>
       <Footer />

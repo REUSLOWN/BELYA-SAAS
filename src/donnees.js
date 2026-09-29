@@ -384,7 +384,43 @@ export const ARGUMENTS = {
       { cle: 'Gain du mois', valeur: '215 000 F' },
     ],
     bouton: 'Enregistrer',
+    /*
+     * La courbe du tableau de bord : le CUMUL des créneaux sauvés depuis
+     * le début du mois.
+     *
+     * Elle sort de la même formule que le reste, sans un chiffre de plus :
+     * 20 créneaux perdus par semaine ÷ 2 = 10 récupérables par semaine, et
+     * 43 au bout de 52/12 semaines. D'où 10, 20, 30, 43.
+     *
+     * Une courbe en dents de scie serait plus jolie à regarder. Elle
+     * serait aussi une invention : on n'a mesuré aucune semaine. Le cumul
+     * monte, et c'est tout ce qu'on peut honnêtement dessiner.
+     *
+     * ⚠️ Ceci est une MAQUETTE d'exemple, jamais une mesure. Le libellé
+     * `exemple` ci-dessous doit rester à l'écran.
+     */
+    semaines: ['S1', 'S2', 'S3', 'S4'],
+    cumul: [10, 20, 30, 43],
+    exemple: 'Exemple calculé pour un salon de trois postes',
   },
+}
+
+/*
+ * S6 — LE TABLEAU DE BORD.
+ *
+ * Le seul écran du produit qu'on montre en grand. Ce qu'une gérante veut
+ * savoir avant de payer n'est pas « à quoi ça ressemble » mais « qu'est-ce
+ * que je vais voir le mois prochain ». Les deux chiffres sont ceux du
+ * calculateur, pas d'autres : si la page se contredit d'une section à
+ * l'autre, tout le reste devient suspect.
+ */
+export const TABLEAU = {
+  surtitre: 'Ce que vous verrez chaque mois',
+  titreSans: 'Les francs récupérés,',
+  titreSerif: 'pas les clics.',
+  chapo:
+    'Créneaux sauvés et francs récupérés, semaine après semaine. C’est le seul chiffre qui décide si vous rechargez le mois suivant — donc c’est celui qu’on met en premier.',
+  legendeCourbe: 'Créneaux sauvés, cumul du mois',
 }
 
 /*

@@ -5,6 +5,7 @@ import {
   BADGE_OFFRE,
   CTA_TARIF,
   GARANTIE,
+  MEDIAS,
   PROFILS,
   TARIFS,
   centaine,
@@ -12,6 +13,7 @@ import {
   formatRoi,
   potentiel,
 } from '../donnees'
+import { mouvementReduit, reveler, revelerTitre } from '../lib/mouvement'
 
 /* Retour et potentiel d'une offre, calculés sur son profil de référence. */
 function chiffresOffre(offre) {
@@ -27,30 +29,35 @@ import ModalePaiement from './ModalePaiement'
 
 export default function Tarifs() {
   const racine = useRef(null)
+  const titre = useRef(null)
   const [offreChoisie, setOffreChoisie] = useState(null)
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from('[data-anim="tarif-titre"]', {
-        y: 40,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out',
-        stagger: 0.08,
-        scrollTrigger: { trigger: racine.current, start: 'top 75%' },
-      })
+    let nettoyerTitre = () => {}
 
-      gsap.from('[data-offre]', {
-        y: 50,
-        opacity: 0,
-        duration: 1.05,
-        ease: 'power3.out',
-        stagger: 0.15,
-        scrollTrigger: { trigger: '[data-grille-tarifs]', start: 'top 82%' },
+    const ctx = gsap.context(() => {
+      nettoyerTitre = revelerTitre(titre.current, { depart: 'top 80%' })
+
+      reveler('[data-anim="tarif-titre"]', { declencheur: racine.current })
+
+      /*
+       * Les trois cartes arrivent avec un léger décalage, et sans
+       * rotation. Une carte qui pivote en entrant a l'air d'un modèle de
+       * diaporama ; une carte qui monte de trente pixels a l'air d'avoir
+       * été posée là.
+       */
+      reveler('[data-offre]', {
+        y: 44,
+        decalage: 0.13,
+        depart: 'top 82%',
+        declencheur: '[data-grille-tarifs]',
       })
     }, racine)
 
-    return () => ctx.revert()
+    return () => {
+      nettoyerTitre()
+      ctx.revert()
+    }
   }, [])
 
   return (
@@ -65,7 +72,7 @@ export default function Tarifs() {
             Tarifs
           </p>
           <h2
-            data-anim="tarif-titre"
+            ref={titre}
             className="mt-5 text-[clamp(2rem,5vw,3.4rem)] font-extrabold leading-[1.06] tracking-tresserre text-encre"
           >
             Un crédit prépayé,
@@ -194,14 +201,7 @@ export default function Tarifs() {
           })}
         </div>
 
-        <div className="mx-auto mt-12 flex max-w-3xl items-start gap-4 rounded-[1.5rem] border border-magenta/30 bg-white/60 p-6 sm:p-7">
-          <ShieldCheck size={26} strokeWidth={2} className="mt-0.5 shrink-0 text-magenta" aria-hidden="true" />
-          <div>
-            <p className="micro text-aubergine">{GARANTIE.titre}</p>
-            <p className="mt-2 text-[1rem] font-semibold leading-snug text-encre">{GARANTIE.texte}</p>
-            <p className="legende mt-2 text-encre/65">{GARANTIE.detail}</p>
-          </div>
-        </div>
+        <Garantie />
 
         <p className="micro mt-10 text-center text-aubergine">
           Crédit prépayé · Aucun engagement de durée · Vous ne payez que les jours où vous ouvrez
@@ -212,5 +212,91 @@ export default function Tarifs() {
         <ModalePaiement offre={offreChoisie} onFermer={() => setOffreChoisie(null)} />
       )}
     </section>
+  )
+}
+
+/*
+ * LE BLOC GARANTIE.
+ *
+ * La phrase la plus sensible de tout le site. Le remède est un CRÉDIT de
+ * trente jours, pas un remboursement : `evaluer_la_garantie()` dans
+ * belya-app/paiements/credit.py ajoute JOURS_GARANTIE = 30 au solde, et
+ * aucun argent ne ressort. Écrire « remboursée » promettrait un versement
+ * qui n'existe pas et qu'il faudrait honorer à la main. Le texte vit dans
+ * `donnees.js` et se relit à chaque modification du code.
+ *
+ * L'image, quand elle existe, se dévoile du bas vers le haut. Elle n'est
+ * JAMAIS présentée comme une cliente, ni accompagnée d'un témoignage :
+ * une photo d'illustration qui se fait passer pour une preuve est
+ * exactement ce que le brief interdit. Sans image, le bloc occupe toute
+ * la largeur et se lit aussi bien.
+ */
+function Garantie() {
+  const bloc = useRef(null)
+  const image = useRef(null)
+
+  useEffect(() => {
+    if (!image.current || mouvementReduit()) return
+
+    const ctx = gsap.context(() => {
+      /*
+       * Le dévoilement part de `inset(100% 0 0 0)` — entièrement rogné
+       * par le haut — et non d'une opacité. Comme il est posé par GSAP au
+       * moment d'animer, l'image reste entière si le script ne tourne
+       * pas.
+       */
+      gsap.fromTo(
+        image.current,
+        { clipPath: 'inset(100% 0 0 0)' },
+        {
+          clipPath: 'inset(0% 0 0 0)',
+          duration: 1.3,
+          ease: 'power3.inOut',
+          scrollTrigger: { trigger: bloc.current, start: 'top 80%', once: true },
+        },
+      )
+    }, bloc)
+
+    return () => ctx.revert()
+  }, [])
+
+  const avecImage = Boolean(MEDIAS.gerante)
+
+  return (
+    <div
+      ref={bloc}
+      className={`mt-12 grid gap-8 rounded-[1.5rem] border border-magenta/30 bg-white/60 p-6 sm:p-8 ${
+        avecImage
+          ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)] lg:items-center'
+          : 'mx-auto max-w-3xl'
+      }`}
+    >
+      <div className="flex items-start gap-4">
+        <ShieldCheck
+          size={26}
+          strokeWidth={2}
+          className="mt-0.5 shrink-0 text-magenta"
+          aria-hidden="true"
+        />
+        <div>
+          <p className="micro text-aubergine">{GARANTIE.titre}</p>
+          <p className="mt-2 text-[1.15rem] font-semibold leading-snug text-encre">
+            {GARANTIE.texte}
+          </p>
+          <p className="legende mt-3 text-encre/65">{GARANTIE.detail}</p>
+        </div>
+      </div>
+
+      {avecImage && (
+        <img
+          ref={image}
+          src={MEDIAS.gerante}
+          alt="Une gérante de salon consulte son agenda."
+          loading="lazy"
+          decoding="async"
+          className="aspect-[4/5] w-full rounded-[1.1rem] object-cover"
+        />
+      )}
+    </div>
   )
 }
