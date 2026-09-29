@@ -9,6 +9,7 @@ import HeroCinema from './components/HeroCinema'
 import Fauteuil from './components/Fauteuil'
 import Calculateur from './components/Calculateur'
 import SceneRevente from './components/SceneRevente'
+import DemoWhatsApp from './components/DemoWhatsApp'
 import Fonctionnalites from './components/Fonctionnalites'
 import Philosophie from './components/Philosophie'
 import Protocole from './components/Protocole'
@@ -41,8 +42,15 @@ export default function App() {
     }
   }, [])
 
+  /*
+   * Pas de fond sur le conteneur : c'est le `body` qui est peint (crème
+   * par défaut en CSS, donc juste même sans JavaScript), et
+   * `basculerFond` le fait virer à l'encre sous les sections sombres.
+   * Repeindre aussi ce conteneur masquerait la bascule et laisserait un
+   * liseré crème dans la zone de rebond, en haut et en bas.
+   */
   return (
-    <div className="grain relative min-h-screen bg-creme">
+    <div className="grain relative min-h-screen">
       <Navbar />
       <main>
         <HeroCinema />
@@ -57,6 +65,11 @@ export default function App() {
           on lui montre aussitôt comment ça se récupère.
         */}
         <SceneRevente />
+        {/*
+          La scène montre le mécanisme ; la démo le fait essayer. L'une
+          après l'autre, dans cet ordre : on regarde, puis on touche.
+        */}
+        <DemoWhatsApp />
         <Fonctionnalites />
         <Philosophie />
         <Protocole />
