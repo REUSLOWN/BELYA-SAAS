@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { FAUTEUIL, MEDIAS, fcfa, SCENE } from '../donnees'
-import { mouvementReduit } from '../lib/mouvement'
+import { COURBE_LIEE, mouvementReduit } from '../lib/mouvement'
 
 /*
  * S2 — LE CRÉNEAU VIDE, PUIS REMPLI.
@@ -72,7 +72,7 @@ export default function Fauteuil() {
         { clipPath: 'inset(0 0 0 100%)' },
         {
           clipPath: 'inset(0 0 0 0%)',
-          ease: 'none',
+          ease: COURBE_LIEE,
           scrollTrigger: {
             trigger: racine.current,
             start: 'top top',
@@ -89,7 +89,7 @@ export default function Fauteuil() {
         { scaleX: 0 },
         {
           scaleX: 1,
-          ease: 'none',
+          ease: COURBE_LIEE,
           transformOrigin: 'left center',
           scrollTrigger: {
             trigger: racine.current,

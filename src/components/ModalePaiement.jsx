@@ -9,6 +9,7 @@ import {
   lienInscription,
   lienWhatsApp,
 } from '../donnees'
+import { COURBE_TOUCHE, DUREE_TOUCHE, mouvementReduit } from '../lib/mouvement'
 
 /*
  * Deux chemins, dans cet ordre.
@@ -43,14 +44,31 @@ export default function ModalePaiement({ offre, onFermer }) {
     }
     window.addEventListener('keydown', auClavier)
 
+    /*
+     * En mouvement réduit, la fenêtre s'affiche sans entrer. C'est le
+     * cas où la garde compte le plus : une modale qui glisse et se
+     * remplit par vagues, au moment précis où l'on s'apprête à payer,
+     * est le pire endroit de la page pour donner le tournis.
+     */
     const ctx = gsap.context(() => {
-      gsap.from('[data-voile]', { opacity: 0, duration: 0.3, ease: 'power2.out' })
-      gsap.from('[data-panneau]', { y: 40, opacity: 0, duration: 0.55, ease: 'power3.out' })
+      if (mouvementReduit()) return
+
+      gsap.from('[data-voile]', {
+        opacity: 0,
+        duration: DUREE_TOUCHE,
+        ease: COURBE_TOUCHE,
+      })
+      gsap.from('[data-panneau]', {
+        y: 40,
+        opacity: 0,
+        duration: 0.55,
+        ease: COURBE_TOUCHE,
+      })
       gsap.from('[data-moyen]', {
         y: 14,
         opacity: 0,
         duration: 0.45,
-        ease: 'power3.out',
+        ease: COURBE_TOUCHE,
         stagger: 0.06,
         delay: 0.15,
       })

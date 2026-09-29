@@ -3,6 +3,7 @@ import { gsap } from 'gsap'
 import { RotateCcw } from 'lucide-react'
 import { DEMO, MEDIAS, fcfa } from '../donnees'
 import {
+  DUREE_TOUCHE,
   basculerFond,
   mouvementReduit,
   reveler,
@@ -327,14 +328,22 @@ function Conversation({ bulles, etiquette }) {
     if (nouvelles <= 0 || mouvementReduit() || !liste.current) return
 
     const elements = Array.from(liste.current.children).slice(-nouvelles)
-    gsap.from(elements, {
-      y: 14,
-      opacity: 0,
-      scale: 0.96,
-      duration: 0.45,
-      ease: 'back.out(1.6)',
-      stagger: 0.18,
-    })
+
+    // Un contexte, même pour un tween : il meurt avec le composant. Sans
+    // lui, une bulle animée pendant qu'on quitte la section laisse un
+    // tween qui écrit dans un nœud démonté.
+    const ctx = gsap.context(() => {
+      gsap.from(elements, {
+        y: 14,
+        opacity: 0,
+        scale: 0.96,
+        duration: DUREE_TOUCHE,
+        ease: 'back.out(1.6)',
+        stagger: 0.18,
+      })
+    }, liste)
+
+    return () => ctx.revert()
   }, [bulles.length])
 
   return (

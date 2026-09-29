@@ -66,7 +66,14 @@ export default function BarreFixe() {
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-40 border-t border-encre/10 bg-creme/90 px-4 backdrop-blur-xl transition-all duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] lg:hidden ${
+      /*
+        Fond crème OPAQUE, et pas de flou. Le brief réserve le verre
+        dépoli à la navbar, et il a raison : un `backdrop-blur` sur un
+        élément fixe force le navigateur à recomposer la zone à chaque
+        image du défilement, ce qui se voit sur un Android modeste. Ici
+        un fond plein coûte zéro.
+      */
+      className={`fixed inset-x-0 bottom-0 z-40 border-t border-encre/10 bg-creme px-4 shadow-[0_-8px_30px_-12px_rgba(26,20,32,0.18)] transition-all duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] lg:hidden ${
         visible
           ? 'translate-y-0 opacity-100'
           : 'pointer-events-none translate-y-full opacity-0'

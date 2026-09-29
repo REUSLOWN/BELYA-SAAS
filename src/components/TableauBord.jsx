@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ARGUMENTS, TABLEAU, fcfa, nombre } from '../donnees'
 import {
+  COURBE,
   compteur,
   mouvementReduit,
   parallaxe,
@@ -73,7 +74,7 @@ export default function TableauBord() {
           {
             strokeDashoffset: 0,
             duration: 1.8,
-            ease: 'power2.inOut',
+            ease: COURBE,
             scrollTrigger: { trigger: racine.current, start: 'top 70%', once: true },
           },
         )

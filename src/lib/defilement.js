@@ -34,10 +34,13 @@ export function demarrerDefilement() {
   if (doux || instance) return () => {}
 
   instance = new Lenis({
-    // 1,05 s pour amortir : assez pour qu'on sente le poids, assez court
+    // 1,1 s pour amortir : assez pour qu'on sente le poids, assez court
     // pour qu'on ne se batte jamais contre la page.
-    duration: 1.05,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    duration: 1.1,
+    // Quartique sortante. Elle décélère plus franchement en fin de course
+    // que l'exponentielle qu'on avait : la page s'arrête où l'on visait,
+    // au lieu de continuer à ramper pendant un dixième de seconde.
+    easing: (t) => 1 - Math.pow(1 - t, 4),
     // Le tactile garde le défilement du système : il est déjà parfait,
     // et l'intercepter casse le rebond natif d'iOS.
     smoothWheel: true,

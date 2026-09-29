@@ -2,7 +2,12 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MANIFESTE, MEDIAS, PROTOCOLE } from '../donnees'
-import { basculerFond, mouvementReduit, reveler } from '../lib/mouvement'
+import {
+  COURBE_LIEE,
+  basculerFond,
+  mouvementReduit,
+  reveler,
+} from '../lib/mouvement'
 
 /*
  * S5 — LES TROIS MÉCANIQUES.
@@ -273,7 +278,7 @@ export default function Mecaniques() {
 
         const glissement = gsap.to(piste.current, {
           x: () => -course(),
-          ease: 'none',
+          ease: COURBE_LIEE,
           scrollTrigger: {
             trigger: cadre.current,
             start: 'top top',
@@ -282,6 +287,17 @@ export default function Mecaniques() {
             scrub: 1,
             invalidateOnRefresh: true,
             anticipatePin: 1,
+            /*
+             * `will-change` seulement pendant l'animation. Laissé en
+             * permanence dans le CSS, il fait promouvoir la piste — trois
+             * écrans de large — en couche composite définitive : de la
+             * mémoire vidéo réservée pour rien pendant tout le reste de
+             * la page, ce qui se paie précisément sur les appareils
+             * modestes qu'on veut ménager.
+             */
+            onToggle: (self) => {
+              piste.current.style.willChange = self.isActive ? 'transform' : ''
+            },
           },
         })
 
@@ -348,7 +364,7 @@ export default function Mecaniques() {
       <div ref={cadre} className="relative lg:h-[100dvh] lg:overflow-hidden">
         <div
           ref={piste}
-          className="flex flex-col lg:h-full lg:flex-row lg:flex-nowrap lg:will-change-transform"
+          className="flex flex-col lg:h-full lg:flex-row lg:flex-nowrap"
         >
           {PROTOCOLE.map((etape, i) => (
             /*

@@ -21,6 +21,37 @@
   }
 
   /*
+   * LE FOCUS. Un anneau magenta de 2 px, à 3 px de l'élément.
+   *
+   * Tailwind retire le contour par défaut du navigateur sans toujours le
+   * remplacer, et sur cette page tous les boutons sont ronds : sans cette
+   * règle, quelqu'un qui navigue au clavier ne sait jamais où il est. Sur
+   * une page de vente, ça veut dire qu'il ne peut pas acheter.
+   *
+   * `:focus-visible` et non `:focus` : le navigateur décide, et n'affiche
+   * l'anneau qu'au clavier — un clic à la souris ne laisse pas de halo
+   * derrière lui.
+   *
+   * Le décalage de 3 px est en `outline-offset` et non en marge, pour que
+   * l'anneau ne déplace jamais la mise en page.
+   */
+  :focus-visible {
+    outline: 2px solid #C2185B;
+    outline-offset: 3px;
+    border-radius: inherit;
+  }
+
+  /*
+   * Sur fond sombre, le magenta profond ne se détache plus assez (3,1:1).
+   * Les sections encre reçoivent donc la variante claire, mesurée à
+   * 4,8:1 — la même que leur texte d'accent.
+   */
+  .bg-encre :focus-visible,
+  .bg-aubergine :focus-visible {
+    outline-color: #E8447F;
+  }
+
+  /*
    * Curseurs : piste epaisse et pastille de 28 px, avec 44 px de hauteur
    * totale cliquable. Viser au pouce sur un Android milieu de gamme ne doit
    * jamais demander de precision.

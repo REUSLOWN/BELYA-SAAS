@@ -4,7 +4,12 @@ import { ArrowDown } from 'lucide-react'
 import { HERO, VIDEO_HERO } from '../donnees'
 import { glisserVers } from '../lib/defilement'
 // L'import enregistre aussi ScrollTrigger et SplitText, une fois pour tous.
-import { mouvementReduit, revelerTitre } from '../lib/mouvement'
+import {
+  COURBE,
+  COURBE_LIEE,
+  mouvementReduit,
+  revelerTitre,
+} from '../lib/mouvement'
 import Bouton from './Bouton'
 
 /*
@@ -129,7 +134,7 @@ export default function HeroCinema() {
         y: 28,
         opacity: 0,
         duration: 1.1,
-        ease: 'power3.out',
+        ease: COURBE,
         stagger: 0.09,
         delay: 0.15,
       })
@@ -167,7 +172,7 @@ export default function HeroCinema() {
           { t: 0 },
           {
             t: 1,
-            ease: 'none',
+            ease: COURBE_LIEE,
             onUpdate() {
               if (!v.duration) return
               v.currentTime = v.duration * this.targets()[0].t
@@ -179,15 +184,15 @@ export default function HeroCinema() {
 
       // Le texte se retire pendant que l'image prend toute la place.
       chrono
-        .to('[data-titre]', { y: -70, opacity: 0.12, ease: 'none' }, 0)
-        .to('[data-secondaire]', { y: -40, opacity: 0, ease: 'none' }, 0)
+        .to('[data-titre]', { y: -70, opacity: 0.12, ease: COURBE_LIEE }, 0)
+        .to('[data-secondaire]', { y: -40, opacity: 0, ease: COURBE_LIEE }, 0)
         // Le voile s'épaissit : le texte reste lisible jusqu'au bout.
-        .to('[data-voile]', { opacity: 0.82, ease: 'none' }, 0)
+        .to('[data-voile]', { opacity: 0.82, ease: COURBE_LIEE }, 0)
         // Les chiffres montent en dernier, seuls sur l'image.
         .fromTo(
           '[data-chiffre]',
           { y: 26, opacity: 0 },
-          { y: 0, opacity: 1, ease: 'none', stagger: 0.12 },
+          { y: 0, opacity: 1, ease: COURBE_LIEE, stagger: 0.12 },
           0.45,
         )
     }, racine)

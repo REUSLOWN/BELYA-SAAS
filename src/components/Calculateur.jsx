@@ -12,15 +12,29 @@ import {
   noteSeuil,
   potentiel,
 } from '../donnees'
+import { mouvementReduit, reveler } from '../lib/mouvement'
 import Bouton from './Bouton'
 import ModalePaiement from './ModalePaiement'
 
-/* Compteur animé : la valeur roule de l'ancienne à la nouvelle. */
+/*
+ * Compteur animé : la valeur roule de l'ancienne à la nouvelle.
+ *
+ * En mouvement réduit, elle change d'un coup. Ce n'est pas une perte :
+ * le chiffre affiché est le même, et un nombre qui roule pendant qu'on
+ * bouge un curseur est exactement le genre de mouvement continu que la
+ * préférence demande d'éviter.
+ */
 function Compteur({ valeur, format, className = '' }) {
   const element = useRef(null)
   const precedent = useRef(valeur)
 
   useEffect(() => {
+    if (mouvementReduit()) {
+      precedent.current = valeur
+      if (element.current) element.current.textContent = format(valeur)
+      return
+    }
+
     const ctx = gsap.context(() => {
       const proxy = { v: precedent.current }
       gsap.to(proxy, {
@@ -151,13 +165,13 @@ export default function Calculateur() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from('[data-anim="aha"]', {
+      // `reveler` porte déjà la garde de mouvement réduit et la courbe
+      // d'entrée de la maison : une section de moins à régler à la main.
+      reveler('[data-anim="aha"]', {
         y: 40,
-        opacity: 0,
-        duration: 1,
-        ease: 'power3.out',
-        stagger: 0.12,
-        scrollTrigger: { trigger: racine.current, start: 'top 72%' },
+        decalage: 0.12,
+        depart: 'top 72%',
+        declencheur: racine.current,
       })
     }, racine)
     return () => ctx.revert()

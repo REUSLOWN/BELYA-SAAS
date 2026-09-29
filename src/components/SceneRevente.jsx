@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SCENE, fcfa } from '../donnees'
+import { mouvementReduit } from '../lib/mouvement'
 
 /*
  * LA SCÈNE — le produit en huit secondes, sans une seule vidéo.
@@ -38,13 +39,15 @@ export default function SceneRevente() {
   const [etape, setEtape] = useState(SCENE.etapes.length - 1)
 
   useEffect(() => {
-    const doux = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
     // Mouvement réduit : on ne touche à rien. Le SVG est écrit dans son
     // état FINAL — place reprise, « OUI » reçu, gain affiché — donc la
     // scène se lit entièrement sans une seule animation. C'est aussi ce
     // que voit quelqu'un dont le JavaScript n'a pas encore chargé.
-    if (doux) return
+    //
+    // La question passe par `mouvementReduit()` et non par un
+    // matchMedia local : une seule façon de la poser dans toute la base,
+    // et le script de vérification peut la trouver.
+    if (mouvementReduit()) return
 
     const ctx = gsap.context(() => {
       // On recule au premier plan de la séquence. La section est sous la

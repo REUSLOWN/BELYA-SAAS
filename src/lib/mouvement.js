@@ -5,7 +5,7 @@ import { SplitText } from 'gsap/SplitText'
 /*
  * LE SYSTÈME DE MOUVEMENT.
  *
- * Cinq primitives, et rien d'autre. Chaque section de la page s'anime
+ * Six primitives, et rien d'autre. Chaque section de la page s'anime
  * en les appelant, jamais en écrivant sa propre timeline : c'est ce qui
  * fait qu'une page a l'air dessinée par une seule main plutôt que par
  * huit composants qui bougent chacun à sa façon. Un site primé n'a pas
@@ -39,8 +39,26 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, SplitText)
 }
 
-/* La courbe de la maison. Une seule, partout : c'est elle qu'on reconnaît. */
-export const COURBE = 'power3.out'
+/*
+ * LES COURBES DE LA MAISON. Trois, pas trente — c'est ce qui se
+ * reconnaît d'une section à l'autre.
+ *
+ *   ENTREE   `expo.out` : presque toute la distance est parcourue dans
+ *            le premier tiers du temps, puis ça se pose. C'est ce qui
+ *            donne l'impression que l'élément était déjà en route avant
+ *            qu'on le regarde.
+ *   LIEE     `none` : quand le défilement commande, toute courbe est un
+ *            mensonge — le doigt avance d'un pixel, l'image doit avancer
+ *            d'un pixel.
+ *   TOUCHE   `power3.out` : pour ce qui répond à un clic. Plus doux
+ *            qu'expo, parce qu'on regarde de près.
+ */
+export const COURBE = 'expo.out'
+export const COURBE_LIEE = 'none'
+export const COURBE_TOUCHE = 'power3.out'
+
+/* Micro-interaction : 0,35 s. Au-delà, un bouton a l'air lent. */
+export const DUREE_TOUCHE = 0.35
 
 export function mouvementReduit() {
   if (typeof window === 'undefined') return true
@@ -54,7 +72,7 @@ export function mouvementReduit() {
  * apparaissant, quand il croise le bas de l'écran.
  *
  * La montée est volontairement courte (32 px) et la durée longue
- * (0,95 s). L'inverse — un grand déplacement rapide — donne une page
+ * (1,15 s). L'inverse — un grand déplacement rapide — donne une page
  * « qui saute ». Peu de distance et beaucoup de temps, c'est ce qui
  * produit la sensation de poids qu'on paie cher ailleurs.
  */
@@ -63,7 +81,7 @@ export function reveler(cibles, options = {}) {
 
   const {
     y = 32,
-    duree = 0.95,
+    duree = 1.15,
     decalage = 0.08,
     depart = 'top 85%',
     declencheur = null,
@@ -102,7 +120,7 @@ export function revelerTitre(element, options = {}) {
   if (!element) return () => {}
   if (mouvementReduit()) return () => {}
 
-  const { duree = 1.05, decalage = 0.1, depart = 'top 85%' } = options
+  const { duree = 1.25, decalage = 0.08, depart = 'top 85%' } = options
 
   const coupe = new SplitText(element, {
     type: 'lines',
@@ -113,9 +131,11 @@ export function revelerTitre(element, options = {}) {
   })
 
   const anim = gsap.from(coupe.lines, {
-    yPercent: 108,
+    // 110 % et non 100 : le masque rogne exactement la hauteur de la
+    // ligne, donc à 100 % le haut des majuscules affleure encore.
+    yPercent: 110,
     duration: duree,
-    ease: 'power4.out',
+    ease: COURBE,
     stagger: decalage,
     scrollTrigger: {
       trigger: element,
@@ -132,7 +152,51 @@ export function revelerTitre(element, options = {}) {
 }
 
 /*
- * ── 3. PARALLAXE ─────────────────────────────────────────────────────
+ * ── 3. RÉVÉLER UNE IMAGE ─────────────────────────────────────────────
+ *
+ * L'image se découvre du bas vers le haut, et pendant ce temps SON
+ * CONTENU se désagrandit de 1,15 à 1. Les deux ensemble donnent
+ * l'impression que l'image était déjà là et qu'on lève un cache ; le
+ * masque seul donne un store qui monte.
+ *
+ * Le cadre reçoit le `clip-path`, l'image reçoit l'échelle — c'est
+ * pourquoi cette fonction prend DEUX éléments. Mettre les deux sur le
+ * même nœud ferait grandir le masque avec l'image, et il ne masquerait
+ * plus rien.
+ *
+ * 1,4 s : une image est plus lourde à l'œil qu'un texte, et se révèle
+ * donc plus lentement. À 1 s, l'effet paraît pressé.
+ */
+export function revelerImage(cadre, image, options = {}) {
+  if (!cadre || mouvementReduit()) return null
+
+  const { duree = 1.4, depart = 'top 80%' } = options
+
+  const chrono = gsap.timeline({
+    scrollTrigger: { trigger: cadre, start: depart, once: true },
+  })
+
+  chrono.fromTo(
+    cadre,
+    { clipPath: 'inset(100% 0 0 0)' },
+    { clipPath: 'inset(0% 0 0 0)', duration: duree, ease: COURBE },
+    0,
+  )
+
+  if (image) {
+    chrono.fromTo(
+      image,
+      { scale: 1.15 },
+      { scale: 1, duration: duree, ease: COURBE },
+      0,
+    )
+  }
+
+  return chrono
+}
+
+/*
+ * ── 4. PARALLAXE ─────────────────────────────────────────────────────
  *
  * L'élément se déplace moins vite que la page. Le cerveau lit ça comme
  * de la profondeur, et c'est ce qui sépare une page « plate » d'une page
@@ -153,7 +217,7 @@ export function parallaxe(element, options = {}) {
     { yPercent: -intensite / 2 },
     {
       yPercent: intensite / 2,
-      ease: 'none',
+      ease: COURBE_LIEE,
       scrollTrigger: {
         trigger: declencheur || element,
         start: 'top bottom',
@@ -165,7 +229,7 @@ export function parallaxe(element, options = {}) {
 }
 
 /*
- * ── 4. COMPTEUR ──────────────────────────────────────────────────────
+ * ── 5. COMPTEUR ──────────────────────────────────────────────────────
  *
  * Un montant qui grimpe jusqu'à sa valeur en entrant à l'écran. Sur une
  * page qui parle d'argent perdu, c'est le seul endroit où l'animation
@@ -210,7 +274,7 @@ export function compteur(element, valeur, format, options = {}) {
 }
 
 /*
- * ── 5. BASCULER LE FOND ──────────────────────────────────────────────
+ * ── 6. BASCULER LE FOND ──────────────────────────────────────────────
  *
  * La page alterne entre crème et encre au fil des sections. Si chaque
  * section peint son propre fond, on voit une couture au changement — un

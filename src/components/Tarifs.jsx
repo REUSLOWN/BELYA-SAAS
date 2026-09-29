@@ -13,7 +13,7 @@ import {
   formatRoi,
   potentiel,
 } from '../donnees'
-import { mouvementReduit, reveler, revelerTitre } from '../lib/mouvement'
+import { reveler, revelerImage, revelerTitre } from '../lib/mouvement'
 
 /* Retour et potentiel d'une offre, calculés sur son profil de référence. */
 function chiffresOffre(offre) {
@@ -233,28 +233,19 @@ export default function Tarifs() {
  */
 function Garantie() {
   const bloc = useRef(null)
+  const cadre = useRef(null)
   const image = useRef(null)
 
   useEffect(() => {
-    if (!image.current || mouvementReduit()) return
+    if (!cadre.current) return
 
+    /*
+     * Le cadre est rogné, l'image désagrandie : voir `revelerImage`. Le
+     * `clip-path` est posé par GSAP au moment d'animer, jamais dans le
+     * HTML — sans script, l'image reste entière.
+     */
     const ctx = gsap.context(() => {
-      /*
-       * Le dévoilement part de `inset(100% 0 0 0)` — entièrement rogné
-       * par le haut — et non d'une opacité. Comme il est posé par GSAP au
-       * moment d'animer, l'image reste entière si le script ne tourne
-       * pas.
-       */
-      gsap.fromTo(
-        image.current,
-        { clipPath: 'inset(100% 0 0 0)' },
-        {
-          clipPath: 'inset(0% 0 0 0)',
-          duration: 1.3,
-          ease: 'power3.inOut',
-          scrollTrigger: { trigger: bloc.current, start: 'top 80%', once: true },
-        },
-      )
+      revelerImage(cadre.current, image.current)
     }, bloc)
 
     return () => ctx.revert()
@@ -288,14 +279,19 @@ function Garantie() {
       </div>
 
       {avecImage && (
-        <img
-          ref={image}
-          src={MEDIAS.gerante}
-          alt="Une gérante de salon consulte son agenda."
-          loading="lazy"
-          decoding="async"
-          className="aspect-[4/5] w-full rounded-[1.1rem] object-cover"
-        />
+        <div
+          ref={cadre}
+          className="aspect-[4/5] w-full overflow-hidden rounded-[1.1rem]"
+        >
+          <img
+            ref={image}
+            src={MEDIAS.gerante}
+            alt="Une gérante de salon consulte son agenda."
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
+        </div>
       )}
     </div>
   )
