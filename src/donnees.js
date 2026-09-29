@@ -694,11 +694,33 @@ export const FAQ = [
       'Votre agenda reste lisible, mais plus modifiable, et votre page de réservation annonce une indisponibilité temporaire. Aucune donnée n’est supprimée, aucun rendez-vous n’est annulé. Une recharge réactive tout immédiatement. Vous êtes prévenue à 5 jours, 2 jours, puis à zéro.',
   },
   {
-    // Vérifié : comptes/inscription.py — quatre champs, puis un code à
-    // six chiffres. Le compte est actif dès le code validé.
+    /*
+     * Vérifié : comptes/inscription.py — quatre champs, puis un code à
+     * six chiffres. Le compte est actif dès le code validé.
+     *
+     * Et pour le fichier clientes, vérifié dans public/views.py :
+     *   · ligne 137, `_cliente()` : chaque réservation publique fait un
+     *     `get_or_create` sur (établissement, téléphone). La fiche naît
+     *     de la réservation, la gérante ne saisit rien ;
+     *   · même fonction : si le nom a changé, il est mis à jour tout
+     *     seul ;
+     *   · ligne 329 : au retour, le numéro pré-remplit le nom connu —
+     *     et seulement dans CE salon (`objects.pour(etablissement)`),
+     *     ce que garde le test `test_le_nom_connu_ne_fuit_pas_entre_salons` ;
+     *   · reservations/vues_gerante.py ligne 305 : même `get_or_create`
+     *     quand la gérante réserve elle-même, donc pas de doublon.
+     *
+     * ⚠️ CE QU'IL NE FAUT PAS ÉCRIRE ICI.
+     * Belya ne recopie PAS un cahier existant : il n'y a aucune fonction
+     * d'import dans belya-app — ni CSV, ni Excel, rien qui lise un
+     * fichier. Le fichier se constitue au fil des réservations, ce qui
+     * répond à la même inquiétude sans rien promettre de faux. Le jour
+     * où un import existera dans le code, cette réponse pourra changer :
+     * pas avant.
+     */
     question: 'Combien de temps pour démarrer ?',
     reponse:
-      'Quatre champs : le nom de votre salon, votre numéro WhatsApp, votre quartier et votre formule. Vous recevez un code à six chiffres, vous le saisissez, et votre page de réservation existe. Vos horaires et vos prestations se règlent ensuite, à votre rythme.',
+      'Quatre champs : le nom de votre salon, votre numéro WhatsApp, votre quartier et votre formule. Vous recevez un code à six chiffres, vous le saisissez, et votre page de réservation existe. Vos horaires et vos prestations se règlent ensuite, à votre rythme. Vous n’avez aucun cahier à recopier : la fiche d’une cliente se crée toute seule à sa première réservation, et au retour son numéro suffit — son nom se pré-remplit.',
   },
   {
     // Vérifié : public/conditions.html §11 — « Aucun engagement de
@@ -825,6 +847,17 @@ export const TARIFS = [
       'Rappels WhatsApp à confirmation active',
       'Annulation en un clic',
       'Liste d’attente automatique',
+      /*
+       * Vérifié dans public/views.py, `_cliente()` : la fiche naît du
+       * `get_or_create` de la réservation, la gérante ne saisit rien.
+       * Les deux autres offres l'héritent par « Tout ce que contient
+       * Solo ».
+       *
+       * « Constitué » et non « importé » : il n'existe aucune fonction
+       * d'import dans belya-app. Voir la note de la FAQ, question
+       * « Combien de temps pour démarrer ? ».
+       */
+      'Fichier clientes constitué automatiquement',
     ],
     misEnAvant: false,
   },
