@@ -453,19 +453,38 @@ export const MEDIAS = {
  *
  * ── OÙ LE METTRE ─────────────────────────────────────────────────────
  *
- *   public/video/salon.mp4  et  public/video/salon-affiche.jpg
- *   puis renseigner `fichier` et `affiche` ci-dessous.
+ *   Les chemins vivent dans MEDIAS, plus haut : c'est le seul endroit où
+ *   l'on touche aux fichiers. Ici on ne règle que le comportement.
  *
- * Tant que `fichier` est vide, le hero affiche sa composition
+ * Tant que `MEDIAS.heroVideo` est vide, le hero affiche sa composition
  * typographique seule — qui se tient très bien. La vidéo est un bonus,
  * jamais une dépendance.
  */
 export const VIDEO_HERO = {
-  fichier: '',
-  affiche: '',
+  get fichier() {
+    return MEDIAS.heroVideo
+  },
+  get fichierMobile() {
+    return MEDIAS.heroVideoMobile
+  },
+  get affiche() {
+    return MEDIAS.heroAffiche
+  },
   // Combien d'écrans de défilement pour dérouler le film. 2,5 donne un
   // geste ample sans lasser.
   ecrans: 2.5,
+  /*
+   * En dessous de cette largeur, on ne fige rien et on ne déroule rien.
+   *
+   * Le déroulé au doigt suppose de pouvoir déplacer `currentTime` à
+   * volonté. Sur iOS, la vidéo ne se charge qu'après un geste de
+   * l'utilisateur et les sauts d'image sont saccadés : l'effet qu'on
+   * paie cher sur un grand écran devient un défaut sur un téléphone. On
+   * y joue donc une boucle courte, sans épingle et sans saut d'image.
+   */
+  seuilBureau: 1024,
+  alternative:
+    'Une coiffeuse tresse une cliente dans son salon, à Abidjan.',
 }
 
 /*
