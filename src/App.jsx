@@ -6,6 +6,7 @@ import { demarrerDefilement } from './lib/defilement'
 
 import Navbar from './components/Navbar'
 import HeroCinema from './components/HeroCinema'
+import Fauteuil from './components/Fauteuil'
 import Calculateur from './components/Calculateur'
 import SceneRevente from './components/SceneRevente'
 import Fonctionnalites from './components/Fonctionnalites'
@@ -45,6 +46,11 @@ export default function App() {
       <Navbar />
       <main>
         <HeroCinema />
+        {/*
+          Juste après le héros : la promesse du produit en une image,
+          avant tout argument. On montre d'abord, on explique ensuite.
+        */}
+        <Fauteuil />
         <Calculateur />
         {/*
           Juste après le calculateur : elle vient de voir ce qu'elle perd,
