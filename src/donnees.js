@@ -135,9 +135,24 @@ export function nombre(n) {
     .replace(/ | /g, ' ')
 }
 
+/*
+ * Aller à une ancre.
+ *
+ * Si le défilement inertiel tourne, on passe par lui : le défilement
+ * natif du navigateur et Lenis se disputeraient la page, et le résultat
+ * saccade. Sinon — mouvement réduit, ou Lenis pas encore démarré — on
+ * retombe sur le comportement du navigateur, qui convient.
+ */
 export function allerA(id) {
   const cible = document.getElementById(id)
-  if (cible) cible.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  if (!cible) return
+
+  const doux = typeof window !== 'undefined' && window.__belyaDefilement
+  if (doux) {
+    doux.scrollTo(cible, { duration: 1.3 })
+    return
+  }
+  cible.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 export const NAV_LIENS = [
@@ -359,6 +374,45 @@ export const ARGUMENTS = {
     ],
     bouton: 'Enregistrer',
   },
+}
+
+/*
+ * LA VIDÉO DU HERO — à déposer, pas à inventer.
+ *
+ * Le mécanisme est écrit et fonctionne : la section se fige, le
+ * défilement déroule le film image par image, le texte se compose
+ * par-dessus. Il ne manque que le fichier.
+ *
+ * ── CE QU'IL FAUT COMMANDER ──────────────────────────────────────────
+ *
+ *   Sujet    : une coiffeuse ivoirienne dans son salon. Plan fixe ou
+ *              travelling très lent. Elle travaille : tresses, brushing,
+ *              une cliente assise. Lumière chaude et naturelle.
+ *   Cadrage  : les mains et le geste, pas les visages en gros plan. La
+ *              partie GAUCHE du cadre doit rester calme — c'est là que
+ *              se pose le titre.
+ *   Durée    : 6 à 10 secondes. Au-delà, le défilement devient long.
+ *   Format   : MP4 (H.264) ET WebM, 1920×1080, sans son.
+ *   Poids    : viser 3 Mo, ne jamais dépasser 6 Mo.
+ *   Encodage : images-clés rapprochées (une toutes les 6 images), sinon
+ *              le déroulé au défilement saccade —
+ *              `ffmpeg -i source.mp4 -g 6 -crf 26 -an hero.mp4`
+ *
+ * ── OÙ LE METTRE ─────────────────────────────────────────────────────
+ *
+ *   public/video/salon.mp4  et  public/video/salon-affiche.jpg
+ *   puis renseigner `fichier` et `affiche` ci-dessous.
+ *
+ * Tant que `fichier` est vide, le hero affiche sa composition
+ * typographique seule — qui se tient très bien. La vidéo est un bonus,
+ * jamais une dépendance.
+ */
+export const VIDEO_HERO = {
+  fichier: '',
+  affiche: '',
+  // Combien d'écrans de défilement pour dérouler le film. 2,5 donne un
+  // geste ample sans lasser.
+  ecrans: 2.5,
 }
 
 /*

@@ -2,8 +2,10 @@ import { useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
+import { demarrerDefilement } from './lib/defilement'
+
 import Navbar from './components/Navbar'
-import Hero from './components/Hero'
+import HeroCinema from './components/HeroCinema'
 import Calculateur from './components/Calculateur'
 import SceneRevente from './components/SceneRevente'
 import Fonctionnalites from './components/Fonctionnalites'
@@ -23,6 +25,9 @@ if (typeof window !== 'undefined') {
 
 export default function App() {
   useEffect(() => {
+    // Le défilement inertiel, branché sur l'horloge de GSAP.
+    const arreter = demarrerDefilement()
+
     // Les images du hero et de la texture décalent la mise en page au chargement.
     const recaler = () => ScrollTrigger.refresh()
     window.addEventListener('load', recaler)
@@ -31,6 +36,7 @@ export default function App() {
     return () => {
       window.removeEventListener('load', recaler)
       clearTimeout(minuteur)
+      arreter()
     }
   }, [])
 
@@ -38,7 +44,7 @@ export default function App() {
     <div className="grain relative min-h-screen bg-creme">
       <Navbar />
       <main>
-        <Hero />
+        <HeroCinema />
         <Calculateur />
         {/*
           Juste après le calculateur : elle vient de voir ce qu'elle perd,
