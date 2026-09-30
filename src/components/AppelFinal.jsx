@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
-import { ACTIVATION, FINAL, GARANTIE, MEDIAS, lienWhatsAppGeneral } from '../donnees'
+import { ACTIVATION, FINAL, MEDIAS, lienWhatsAppGeneral } from '../donnees'
 import { basculerFond, revelerTitre } from '../lib/mouvement'
 
 /*
@@ -138,9 +138,15 @@ export default function AppelFinal() {
           )}
         </div>
 
-        <p className="legende mt-7 text-creme/55">{FINAL.micro}</p>
-        <p className="legende mx-auto mt-3 max-w-lg text-creme/45">
-          {GARANTIE.courte}
+        {/*
+          UNE seule ligne sous le bouton.
+          Il y en avait deux, et les deux parlaient de la garantie : la
+          répéter à trois lignes d'intervalle la rend suspecte au lieu de
+          la rendre rassurante. `FINAL.micro` porte désormais le
+          mécanisme en entier — un mois offert, pas un remboursement.
+        */}
+        <p className="legende mx-auto mt-7 max-w-xl text-creme/55">
+          {FINAL.micro}
         </p>
       </div>
 

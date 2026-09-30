@@ -10,7 +10,6 @@ import BarreFixe from './components/BarreFixe'
 import HeroCinema from './components/HeroCinema'
 import Fauteuil from './components/Fauteuil'
 import Calculateur from './components/Calculateur'
-import SceneRevente from './components/SceneRevente'
 import DemoWhatsApp from './components/DemoWhatsApp'
 import Mecaniques from './components/Mecaniques'
 import TableauBord from './components/TableauBord'
@@ -66,12 +65,13 @@ export default function App() {
         <Calculateur />
         {/*
           Juste après le calculateur : elle vient de voir ce qu'elle perd,
-          on lui montre aussitôt comment ça se récupère.
-        */}
-        <SceneRevente />
-        {/*
-          La scène montre le mécanisme ; la démo le fait essayer. L'une
-          après l'autre, dans cet ordre : on regarde, puis on touche.
+          on lui fait essayer comment ça se récupère.
+
+          L'ancienne « scène » animée vivait ici, et jouait la même
+          histoire en boucle une section avant cette démo. Elle est
+          maintenant DANS la démo, en agenda du salon à côté du téléphone
+          de la cliente : les deux côtés de la même minute, déclenchés par
+          la visiteuse au lieu de tourner tout seuls.
         */}
         <DemoWhatsApp />
         {/*

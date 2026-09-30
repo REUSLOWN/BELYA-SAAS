@@ -540,43 +540,6 @@ export const VIDEO_HERO = {
 }
 
 /*
- * LA SCÈNE — le mécanisme montré, pas expliqué.
- *
- * Le reste de la page raconte comment Belya récupère un créneau perdu.
- * Cette section le donne à voir : une place se vide, la liste d'attente
- * s'allume, « OUI » revient, l'argent avec.
- *
- * Aucune vidéo. Le dessin est en SVG animé, donc il ne coûte rien à
- * télécharger — décisif pour une gérante en 3G qui paie son forfait au
- * méga-octet. Voir l'en-tête de SceneRevente.jsx.
- *
- * `gain` est le prix d'une prestation, pas un cumul : c'est UNE place
- * revendue qu'on montre, celle de samedi 14 h.
- */
-export const SCENE = {
-  surtitre: 'Ce qui se passe quand une cliente annule',
-  titreSans: 'Une place se vide.',
-  titreSerif: 'Elle se remplit.',
-  chapo:
-    'Samedi, 14 h. Awa annule. Sans Belya, la place reste vide et la journée est amputée. Avec Belya, elle repart en trente minutes.',
-  agenda: 'VOTRE SEMAINE',
-  attente: 'EN LISTE D’ATTENTE',
-  candidates: ['Fatou D.', 'Mariam T.', 'Aïcha B.'],
-  gainLibelle: 'RÉCUPÉRÉ',
-  gain: 5000,
-  etapes: [
-    'Votre semaine est pleine. Chaque place est une prestation vendue.',
-    'Samedi 14 h : Awa annule. La place se vide.',
-    'Belya prévient aussitôt vos clientes en attente.',
-    'Fatou répond « OUI ». La place est reprise.',
-    'La prestation est sauvée. Vous n’avez rien eu à faire.',
-  ],
-  // Lue par les lecteurs d'écran à la place du dessin.
-  alternative:
-    'Un agenda de la semaine dont une place du samedi se libère, puis se remplit à nouveau grâce à la liste d’attente.',
-}
-
-/*
  * S2 — LE CRÉNEAU VIDE, PUIS REMPLI.
  *
  * Deux photos au cadrage identique, l'une révélée sur l'autre par un
@@ -611,6 +574,19 @@ export const FAUTEUIL = {
  * traduisible, sans les lettres déformées de l'IA. La visiteuse répond
  * à la place d'Awa et voit les deux branches — c'est ce qui fait
  * comprendre le mécanisme en dix secondes.
+ *
+ * ── LA FUSION DE L'ANCIENNE « SCÈNE » ────────────────────────────────
+ *
+ * Il y avait deux sections pour une seule idée : un dessin SVG qui
+ * jouait « une place se vide, la liste d'attente s'allume, l'argent
+ * revient » en boucle, et cette démo qui fait vivre la même chose. La
+ * boucle racontait une histoire que personne n'avait demandée ; ici
+ * c'est la visiteuse qui la déclenche.
+ *
+ * Le dessin est donc devenu `scene` ci-dessous : l'agenda du salon, à
+ * côté du téléphone de la cliente. Les deux côtés de la même minute. Il
+ * ne tourne plus en boucle — il SUIT l'état de la conversation, ce qui
+ * était l'intérêt du dessin depuis le début.
  */
 export const DEMO = {
   surtitre: 'Essayez, répondez à sa place',
@@ -657,7 +633,43 @@ export const DEMO = {
     },
   },
   gain: 5000,
-  attente: ['Fatou D.', 'Mariam T.', 'Aïcha B.'],
+
+  /*
+   * L'AGENDA DU SALON — l'autre côté de la même minute.
+   *
+   * Le dessin de l'ancienne section « scène », qui suit maintenant
+   * l'état de la conversation au lieu de tourner en boucle :
+   *
+   *   attente   la semaine est pleine, la place du samedi est vendue ;
+   *   confirmé  rien ne change, et c'est le propos — un « oui » ne
+   *             demande aucun travail à la gérante ;
+   *   libéré    la place se vide, les trois clientes en attente
+   *             s'allument ;
+   *   revendu   la place se remplit, le gain apparaît.
+   *
+   * En SVG et non en image : net à toutes les tailles, rien à
+   * télécharger, et modifiable en une ligne. Décisif pour une gérante
+   * en 3G qui paie son forfait au méga-octet.
+   */
+  scene: {
+    agenda: 'VOTRE SEMAINE',
+    attente: 'EN LISTE D’ATTENTE',
+    // Les mêmes trois prénoms que les bulles : Fatou est celle qui
+    // répond, donc elle est en tête.
+    candidates: ['Fatou D.', 'Mariam T.', 'Aïcha B.'],
+    gainLibelle: 'RÉCUPÉRÉ',
+    libre: 'libre',
+    // Lue par les lecteurs d'écran à la place du dessin, et réécrite
+    // selon l'état : le dessin ne dit jamais rien que le texte ne dise.
+    alternatives: {
+      attente: 'Votre agenda de la semaine : la place de samedi 14 h est vendue.',
+      confirme: 'Votre agenda de la semaine : la place de samedi 14 h est confirmée.',
+      libere:
+        'Votre agenda de la semaine : la place de samedi 14 h s’est libérée, et trois clientes en liste d’attente viennent d’être prévenues.',
+      revendu:
+        'Votre agenda de la semaine : la place de samedi 14 h est reprise par Fatou, et 5 000 F sont récupérés.',
+    },
+  },
 }
 
 /*
@@ -730,12 +742,22 @@ export const FAQ = [
       'Oui. Il n’y a aucun engagement de durée et aucun prélèvement automatique : vous achetez des jours, et vous cessez en ne rechargeant plus. Les jours achetés restent valables douze mois, et votre compte se réactive à tout moment.',
   },
   {
-    // Vérifié : belya/cloisonnement.py (filtrage par établissement),
-    // comptes/models.py JournalAcces (trace des consultations admin),
-    // public/confidentialite.html.
+    /*
+     * Vérifié : belya/cloisonnement.py (filtrage par établissement),
+     * comptes/models.py JournalAcces (utilisateur, établissement,
+     * action, horodatage), public/confidentialite.html ligne 277
+     * (« Tout accès à l'administration est consigné : qui, quand, sur
+     * quel salon. »).
+     *
+     * La réponse disait « Vous seule », ce qui était faux : un
+     * administrateur Belya peut ouvrir un agenda depuis
+     * l'administration — c'est ce que JournalAcces existe pour tracer.
+     * Prétendre le contraire sur la page de vente aurait contredit
+     * notre propre politique de confidentialité.
+     */
     question: 'Qui voit les numéros de mes clientes ?',
     reponse:
-      'Vous seule. Chaque requête est filtrée par salon, et des tests automatisés vérifient sur chaque page qu’un salon ne voit jamais les données d’un autre. Toute consultation depuis l’administration laisse une trace nominative : on peut répondre à « qui a regardé quoi, et quand ».',
+      'Vous, et l’équipe Belya seulement pour l’assistance, avec une trace nominative de chaque consultation. Chaque requête est filtrée par salon, et des tests automatisés vérifient sur chaque page qu’un salon ne voit jamais les données d’un autre.',
   },
 ]
 
@@ -748,7 +770,19 @@ export const FAQ = [
 export const FINAL = {
   titreSans: 'Samedi prochain,',
   titreSerif: 'aucun fauteuil vide.',
-  micro: 'Garantie premier mois · sans engagement · dès 3 000 F',
+  /*
+   * UNE seule ligne, qui dit la garantie en entier.
+   *
+   * Il y avait deux lignes ici, et les deux parlaient de la garantie.
+   * Répétée à trois lignes d'intervalle, une promesse devient suspecte
+   * au lieu de rassurer.
+   *
+   * ⚠️ « Le mois suivant offert » et jamais « remboursé » :
+   * evaluer_la_garantie() dans belya-app/paiements/credit.py ajoute
+   * trente jours au solde, aucun argent ne ressort. Voir GARANTIE.
+   */
+  micro:
+    'Le mois suivant offert si Belya ne couvre pas son prix · sans engagement · dès 3 000 F',
 }
 
 /* La barre fixe du bas, sur mobile, après le héros. */

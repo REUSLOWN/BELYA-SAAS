@@ -17,15 +17,32 @@ import { BARRE_MOBILE, lienWhatsAppGeneral } from '../donnees'
  * `BarreMobile` dans `App.jsx` et de supprimer celui-ci.
  *
  * ────────────────────────────────────────────────────────────────────
- * DEUX BORNES, PAS UNE
+ * DEUX BORNES, ET LE PIÈGE QU'ELLES CACHENT
  * ────────────────────────────────────────────────────────────────────
  *
- * Elle apparaît après le héros — avant, l'appel à l'action est déjà à
- * l'écran en grand, et la doubler serait de l'insistance.
+ * Elle apparaît quand le bas du héros est SORTI PAR LE HAUT — avant,
+ * l'appel à l'action est déjà à l'écran en grand, et le doubler serait
+ * de l'insistance.
  *
- * Elle disparaît sur l'appel final — là aussi le bouton est à l'écran, et
- * deux fois le même appel se lit comme du harcèlement. C'est ce second
- * effacement qui distingue une barre soignée d'un bandeau collant.
+ * Elle disparaît dès que l'appel final entre à l'écran : là aussi le
+ * bouton est visible, et deux fois le même appel se lit comme du
+ * harcèlement. Et elle reste cachée dans le pied de page, qui vient
+ * après.
+ *
+ * ⚠️ LE PIÈGE. « La sentinelle n'est pas à l'écran » ne dit pas si elle
+ * est AU-DESSUS ou EN DESSOUS. La version précédente s'y prenait, et
+ * produisait exactement les deux défauts constatés :
+ *
+ *   · au chargement, le bas du héros est sous la ligne de flottaison
+ *     dès que le héros dépasse la hauteur de l'écran — donc « pas à
+ *     l'écran », donc la barre s'affichait tout de suite ;
+ *   · dans le pied de page, l'appel final est repassé au-dessus — donc
+ *     « pas à l'écran » là aussi, donc la barre revenait.
+ *
+ * On lit donc `boundingClientRect` que l'observateur fournit déjà :
+ * `bottom <= 0` pour « sorti par le haut », `top > 0` pour « encore en
+ * dessous ». Les deux états partent à faux, donc la barre est cachée au
+ * chargement quoi qu'il arrive, et l'observateur corrige aussitôt.
  *
  * `env(safe-area-inset-bottom)` tient compte de la barre de gestes des
  * iPhone et des Android récents : sans elle, le bouton passe sous le
@@ -33,33 +50,38 @@ import { BARRE_MOBILE, lienWhatsAppGeneral } from '../donnees'
  */
 
 export default function BarreFixe() {
-  const [passeHero, setPasseHero] = useState(false)
-  const [surFinal, setSurFinal] = useState(false)
+  // Le bas du héros est-il sorti par le haut ?
+  const [heroSorti, setHeroSorti] = useState(false)
+  // L'appel final est-il encore entièrement sous l'écran ?
+  const [finalEnDessous, setFinalEnDessous] = useState(false)
 
   useEffect(() => {
     const observateurs = []
 
-    const suivre = (id, regler) => {
+    const suivre = (id, lire) => {
       const cible = document.getElementById(id)
       if (!cible) return
 
       const observateur = new IntersectionObserver(
-        ([entree]) => regler(!entree.isIntersecting),
+        ([entree]) => lire(entree),
         { threshold: 0 },
       )
       observateur.observe(cible)
       observateurs.push(observateur)
     }
 
-    // Le héros : « dépassé » = la sentinelle n'est plus à l'écran.
-    suivre('sentinelle-hero', setPasseHero)
-    // L'appel final : on inverse — visible signifie qu'on y est.
-    suivre('sentinelle-final', (dehors) => setSurFinal(!dehors))
+    suivre('sentinelle-hero', (entree) =>
+      setHeroSorti(!entree.isIntersecting && entree.boundingClientRect.bottom <= 0),
+    )
+
+    suivre('sentinelle-final', (entree) =>
+      setFinalEnDessous(!entree.isIntersecting && entree.boundingClientRect.top > 0),
+    )
 
     return () => observateurs.forEach((o) => o.disconnect())
   }, [])
 
-  const visible = passeHero && !surFinal
+  const visible = heroSorti && finalEnDessous
   const destination = lienWhatsAppGeneral()
 
   if (!destination) return null

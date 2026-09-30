@@ -140,12 +140,22 @@ export default function HeroCinema() {
       })
 
       /*
-       * L'épingle et le déroulé, sur grand écran seulement. Sur mobile,
-       * figer un écran entier sur un téléphone où la barre d'adresse
-       * change la hauteur à chaque geste produit des sauts de mise en
-       * page — le contraire de l'effet recherché.
+       * ÉPINGLER OU NON.
+       *
+       * L'épingle n'existe que pour dérouler un film. Sans film, elle
+       * n'a plus rien à dérouler : elle ne fait que retenir la page,
+       * effacer le titre et faire apparaître les chiffres qui étaient
+       * déjà là. C'est l'inverse du service rendu — on fabriquait une
+       * animation pour une image absente.
+       *
+       * Tant qu'aucune vidéo n'est prête, la section reste donc une
+       * composition typographique normale : le titre ne bouge plus, les
+       * chiffres sont posés en grand, et la page défile.
+       *
+       * Sur mobile, jamais d'épingle non plus : la barre d'adresse
+       * change de hauteur à chaque geste et fait sauter la mise en page.
        */
-      if (!surBureau) return
+      if (!surBureau || !videoPrete) return
 
       const v = video.current
 
@@ -155,10 +165,8 @@ export default function HeroCinema() {
           start: 'top top',
           // La distance de défilement pendant laquelle la section reste
           // figée. Proportionnelle à la durée de la vidéo : une seconde
-          // de film pour un écran de défilement. Sans vidéo, on fige
-          // beaucoup moins — il n'y a rien à dérouler.
-          end: () =>
-            `+=${window.innerHeight * (videoPrete ? VIDEO_HERO.ecrans : 0.6)}`,
+          // de film pour un écran de défilement.
+          end: () => `+=${window.innerHeight * VIDEO_HERO.ecrans}`,
           pin: true,
           scrub: 0.6,
           invalidateOnRefresh: true,
@@ -167,7 +175,7 @@ export default function HeroCinema() {
 
       // La vidéo se déroule au doigt : on n'appelle jamais play(), on
       // déplace `currentTime`. C'est ce qui donne le contrôle total.
-      if (v && videoPrete) {
+      if (v) {
         chrono.to(
           { t: 0 },
           {
@@ -211,6 +219,23 @@ export default function HeroCinema() {
       : surBureau
         ? VIDEO_HERO.fichier
         : VIDEO_HERO.fichierMobile || VIDEO_HERO.fichier
+
+  /*
+   * Y A-T-IL UN MÉDIA, TOUT COURT ?
+   *
+   * Calculé sur les chemins de `MEDIAS`, qui sont statiques : la réponse
+   * est donc la même au pré-rendu et dans le navigateur, et rien ne
+   * clignote à l'hydratation. C'est ce qui décide de la TAILLE des
+   * chiffres, pas `videoPrete` — sinon ils rétréciraient sous les yeux
+   * de la visiteuse au moment où la vidéo arrive.
+   *
+   * Sans média, les trois chiffres sont le seul élément visuel de la
+   * section : ils passent au premier plan, en grand, et portent la
+   * composition à la place de l'image qui manque.
+   */
+  const avecMedia = Boolean(
+    VIDEO_HERO.fichier || VIDEO_HERO.fichierMobile || VIDEO_HERO.affiche,
+  )
 
   return (
     <section
@@ -305,15 +330,33 @@ export default function HeroCinema() {
           </div>
 
           {/*
-            Les trois chiffres. Ils restent quand le reste s'efface : ce
-            sont eux qui doivent rester à l'écran sur l'image du salon.
+            Les trois chiffres.
+
+            AVEC média : ils restent quand le reste s'efface, en petit,
+            parce que c'est l'image du salon qu'on doit regarder.
+
+            SANS média : ils sont le seul élément visuel de la section.
+            En 13 px sous une composition typographique, ils passaient
+            pour une mention légale ; en grand, séparés par des traits,
+            ils deviennent l'argument — c'est le montant perdu, et c'est
+            ce qui doit arrêter l'œil.
           */}
-          <ul className="mt-12 flex flex-wrap items-baseline gap-x-8 gap-y-3">
+          <ul
+            className={
+              avecMedia
+                ? 'mt-12 flex flex-wrap items-baseline gap-x-8 gap-y-3'
+                : 'mt-14 flex flex-col gap-5 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-10'
+            }
+          >
             {HERO.stats.map((stat) => (
               <li
                 key={stat}
                 data-chiffre
-                className="legende font-semibold tracking-serre text-aubergine"
+                className={
+                  avecMedia
+                    ? 'legende font-semibold tracking-serre text-aubergine'
+                    : 'border-magenta/40 text-[clamp(1.05rem,2.4vw,1.45rem)] font-bold leading-tight tracking-tresserre text-aubergine sm:border-l sm:pl-5 sm:first:border-l-0 sm:first:pl-0'
+                }
               >
                 {stat}
               </li>

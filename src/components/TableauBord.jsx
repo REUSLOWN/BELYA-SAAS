@@ -126,11 +126,40 @@ export default function TableauBord() {
             {CHIFFRES.map(({ cle, valeur, format }, i) => (
               <div key={cle}>
                 <dt className="micro text-aubergine">{cle}</dt>
-                <dd
-                  ref={(el) => (valeurs.current[i] = el)}
-                  className="mt-2 text-[clamp(1.8rem,4.5vw,2.6rem)] font-extrabold tabular-nums tracking-tresserre text-encre"
-                >
-                  {format(valeur)}
+                <dd className="mt-2 text-[clamp(1.8rem,4.5vw,2.6rem)] font-extrabold tabular-nums tracking-tresserre text-encre">
+                  {/*
+                    LA LARGEUR EST RÉSERVÉE D'AVANCE.
+
+                    Le compteur écrit « 0 », puis « 12 400 F », puis
+                    « 215 000 F » : le texte s'allonge de trois
+                    caractères pendant qu'il monte. Sans réservation, la
+                    colonne s'élargit à chaque image et la mise en page
+                    tremble — sur une page qui se vend sur son soin,
+                    c'est le genre de détail qu'on remarque sans savoir
+                    le nommer.
+
+                    On empile donc la valeur FINALE, invisible, qui
+                    donne sa largeur au bloc, et on pose la valeur
+                    animée par-dessus en absolu. `tabular-nums` garantit
+                    que tous les chiffres ont la même largeur, donc
+                    qu'aucune étape intermédiaire ne dépasse.
+                    `whitespace-nowrap` empêche « 215 000 F » de se
+                    couper entre le nombre et le franc.
+
+                    L'élément invisible est `aria-hidden` : la valeur est
+                    déjà annoncée une fois par celui du dessus.
+                  */}
+                  <span className="relative inline-block whitespace-nowrap">
+                    <span aria-hidden="true" className="invisible">
+                      {format(valeur)}
+                    </span>
+                    <span
+                      ref={(el) => (valeurs.current[i] = el)}
+                      className="absolute left-0 top-0 whitespace-nowrap tabular-nums"
+                    >
+                      {format(valeur)}
+                    </span>
+                  </span>
                 </dd>
               </div>
             ))}

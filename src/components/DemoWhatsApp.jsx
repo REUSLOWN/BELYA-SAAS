@@ -184,28 +184,13 @@ export default function DemoWhatsApp() {
           </ol>
 
           {/*
-            Qui a été prévenu. Trois prénoms, pas un compteur : « 3
-            clientes » est une statistique, trois prénoms sont une scène.
+            L'agenda du salon. Il ne tourne pas en boucle : il suit
+            l'état de la conversation. C'est l'autre côté de la même
+            minute — le téléphone d'Awa à droite, votre semaine ici.
           */}
-          {(etat === LIBERE || etat === REVENDU) && (
-            <ul
-              className="mt-8 flex flex-wrap gap-2"
-              aria-label="Clientes prévenues"
-            >
-              {DEMO.attente.map((nom, i) => (
-                <li
-                  key={nom}
-                  className={`legende rounded-full border px-3 py-1 transition-colors duration-500 ${
-                    etat === REVENDU && i === 0
-                      ? 'border-magenta-clair bg-magenta/20 font-semibold text-magenta-clair'
-                      : 'border-creme/20 text-creme/55'
-                  }`}
-                >
-                  {nom}
-                </li>
-              ))}
-            </ul>
-          )}
+          <div data-demo-entree className="mt-10">
+            <AgendaDuSalon etat={etat} />
+          </div>
 
           {/*
             Le gain, révélé seulement quand la place est reprise. On ne
@@ -272,6 +257,169 @@ export default function DemoWhatsApp() {
         </div>
       </div>
     </section>
+  )
+}
+
+/*
+ * L'AGENDA DU SALON — l'ancienne section « scène », fondue ici.
+ *
+ * Elle existait à part et jouait la même histoire en boucle, une section
+ * plus haut. Une boucle raconte à qui n'a rien demandé ; ici c'est la
+ * visiteuse qui déclenche, et le dessin ne fait que MONTRER LA
+ * CONSÉQUENCE de sa réponse. C'est ce que le dessin voulait dire depuis
+ * le début.
+ *
+ * ── DEUX CHOIX ───────────────────────────────────────────────────────
+ *
+ * Du SVG et non une image : net à toutes les tailles, rien à
+ * télécharger, modifiable en une ligne. Décisif pour une gérante en 3G
+ * qui paie son forfait au méga-octet.
+ *
+ * Des transitions CSS et non GSAP. Les changements sont des changements
+ * d'ÉTAT, pas une chorégraphie : une couleur, une opacité, un trait
+ * pointillé. Le CSS les interpole tout seul, et la règle globale de
+ * `prefers-reduced-motion` les neutralise déjà — donc rien à garder à
+ * jour de ce côté.
+ *
+ * L'état de départ (semaine pleine, place de samedi vendue) est complet
+ * et se lit sans JavaScript.
+ */
+
+const COLONNES = ['L', 'M', 'M', 'J', 'V', 'S']
+const CIBLE = { colonne: 5, rangee: 1 }
+const MAGENTA = '#C2185B'
+const MAGENTA_CLAIR = '#E8447F'
+const AUBERGINE = '#2B1B2E'
+
+function AgendaDuSalon({ etat }) {
+  const s = DEMO.scene
+  const vide = etat === LIBERE
+  const attenteAllumee = etat === LIBERE || etat === REVENDU
+
+  const x = (c) => 30 + c * 58
+  const y = (r) => 62 + r * 34
+
+  return (
+    <svg
+      viewBox="0 0 400 300"
+      className="w-full max-w-[420px]"
+      role="img"
+      aria-label={s.alternatives[etat]}
+    >
+      {/* ── La semaine ── */}
+      <text x="14" y="26" className="fill-creme/45" fontSize="11"
+            fontWeight="600" letterSpacing="1.4">
+        {s.agenda}
+      </text>
+
+      {COLONNES.map((jour, c) => (
+        <text key={`${jour}-${c}`} x={x(c)} y="50" textAnchor="middle"
+              className="fill-creme/40" fontSize="11" fontWeight="600">
+          {jour}
+        </text>
+      ))}
+
+      {COLONNES.map((_, c) =>
+        [0, 1, 2].map((r) => {
+          const estCible = c === CIBLE.colonne && r === CIBLE.rangee
+          // Le motif de remplissage de la semaine : deux places sur
+          // trois vendues, ce qui correspond au taux de remplissage du
+          // profil « Salon » du calculateur.
+          const vendue = estCible ? !vide : (c + r) % 3 !== 2
+
+          return (
+            <rect
+              key={`${c}-${r}`}
+              x={x(c) - 22} y={y(r)} width="44" height="26" rx="7"
+              fill={vendue ? MAGENTA : AUBERGINE}
+              opacity={vendue ? 1 : 0.35}
+              stroke={estCible ? MAGENTA_CLAIR : 'none'}
+              strokeWidth={estCible ? 1.5 : 0}
+              strokeDasharray={estCible && vide ? '4 3' : undefined}
+              className="transition-all duration-500"
+            />
+          )
+        }),
+      )}
+
+      {/* La place libérée le dit. */}
+      <text
+        x={x(CIBLE.colonne)} y={y(CIBLE.rangee) + 17} textAnchor="middle"
+        className="fill-magenta-clair transition-opacity duration-500"
+        fontSize="9" fontWeight="700" opacity={vide ? 1 : 0}
+      >
+        {s.libre}
+      </text>
+
+      {/* Reprise : le prénom se pose sur la place. */}
+      <g
+        className="transition-opacity duration-500"
+        opacity={etat === REVENDU ? 1 : 0}
+      >
+        <rect x={x(CIBLE.colonne) - 26} y={y(CIBLE.rangee) - 20}
+              width="52" height="16" rx="8" fill={MAGENTA_CLAIR} />
+        <text x={x(CIBLE.colonne)} y={y(CIBLE.rangee) - 8}
+              textAnchor="middle" fill="#1A1420" fontSize="9"
+              fontWeight="800">
+          {s.candidates[0].split(' ')[0]}
+        </text>
+      </g>
+
+      {/* ── La liste d'attente ── */}
+      <text x="14" y="196" className="fill-creme/45" fontSize="11"
+            fontWeight="600" letterSpacing="1.4">
+        {s.attente}
+      </text>
+
+      {s.candidates.map((nom, i) => {
+        // Sur la reprise, Fatou passe en plein : c'est elle qui a
+        // répondu, et on doit voir laquelle.
+        const aRepondu = etat === REVENDU && i === 0
+        return (
+          <g
+            key={nom}
+            className="transition-opacity duration-500"
+            opacity={attenteAllumee ? 1 : 0.25}
+          >
+            <circle
+              cx="32" cy={218 + i * 28} r="10"
+              fill={aRepondu ? MAGENTA_CLAIR : 'none'}
+              stroke={MAGENTA_CLAIR} strokeWidth="1.5"
+              className="transition-all duration-500"
+            />
+            <text
+              x="32" y={222 + i * 28} textAnchor="middle"
+              fill={aRepondu ? '#1A1420' : MAGENTA_CLAIR}
+              fontSize="10" fontWeight="700"
+              className="transition-colors duration-500"
+            >
+              {nom.slice(0, 1)}
+            </text>
+            <text x="52" y={222 + i * 28} className="fill-creme/75" fontSize="12">
+              {nom}
+            </text>
+          </g>
+        )
+      })}
+
+      {/* ── Le gain ── */}
+      <g
+        className="transition-opacity duration-500"
+        opacity={etat === REVENDU ? 1 : 0}
+      >
+        <rect x="196" y="196" width="190" height="72" rx="16"
+              fill={MAGENTA} opacity="0.14" stroke={MAGENTA_CLAIR}
+              strokeWidth="1" />
+        <text x="214" y="222" className="fill-creme/60" fontSize="10"
+              fontWeight="600" letterSpacing="1.2">
+          {s.gainLibelle}
+        </text>
+        <text x="214" y="252" className="fill-creme" fontSize="26"
+              fontWeight="800" letterSpacing="-0.5">
+          {fcfa(DEMO.gain)}
+        </text>
+      </g>
+    </svg>
   )
 }
 

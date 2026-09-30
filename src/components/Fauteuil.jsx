@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
-import { FAUTEUIL, MEDIAS, fcfa, SCENE } from '../donnees'
+import { DEMO, FAUTEUIL, MEDIAS, fcfa } from '../donnees'
 import { COURBE_LIEE, mouvementReduit } from '../lib/mouvement'
 
 /*
@@ -208,7 +208,7 @@ function Panneau({ etat, media, sombre = false, plein = false }) {
               className={`montant-perte font-drama italic ${accent}`}
               aria-hidden="true"
             >
-              {fcfa(SCENE.gain)}
+              {fcfa(DEMO.gain)}
             </p>
           </div>
         )}
