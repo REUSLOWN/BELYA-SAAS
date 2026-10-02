@@ -21,7 +21,11 @@ export default function Navbar() {
   const [cachee, setCachee] = useState(false)
 
   useEffect(() => {
-    const cible = document.getElementById('sentinelle-hero')
+    // Le vol pose sa propre sentinelle, hors écran : sur un film, la
+    // navigation garde son fond dès le départ.
+    const cible =
+      document.getElementById('sentinelle-nav') ||
+      document.getElementById('sentinelle-hero')
     if (!cible) return
 
     const observateur = new IntersectionObserver(([entree]) => setPose(!entree.isIntersecting), {

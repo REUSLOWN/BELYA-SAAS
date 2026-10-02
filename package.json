@@ -8,7 +8,8 @@
     "build": "vite build && vite build --ssr src/entree-serveur.jsx --outDir dist-ssr && node scripts/prerendre.mjs",
     "preview": "vite preview",
     "medias": "node scripts/traiter-medias.mjs",
-    "verifier": "node scripts/verifier.mjs"
+    "verifier": "node scripts/verifier.mjs",
+    "vol": "node scripts/vol.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

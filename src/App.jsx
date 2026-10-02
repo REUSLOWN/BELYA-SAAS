@@ -8,6 +8,8 @@ import Navbar from './components/Navbar'
 import Progression from './components/Progression'
 import BarreFixe from './components/BarreFixe'
 import HeroCinema from './components/HeroCinema'
+import VolSalon from './components/VolSalon'
+import { VOL_ACTIF } from './vol'
 import Fauteuil from './components/Fauteuil'
 import Calculateur from './components/Calculateur'
 import DemoWhatsApp from './components/DemoWhatsApp'
@@ -56,7 +58,12 @@ export default function App() {
       <Progression />
       <Navbar />
       <main>
-        <HeroCinema />
+        {/*
+          Le vol à travers le salon remplace le héros dès que ses images
+          sont préparées (npm run vol -- preparer). Sans elles, le héros
+          typographique reste en place : jamais de section vide.
+        */}
+        {VOL_ACTIF ? <VolSalon /> : <HeroCinema />}
         {/*
           Juste après le héros : la promesse du produit en une image,
           avant tout argument. On montre d'abord, on explique ensuite.

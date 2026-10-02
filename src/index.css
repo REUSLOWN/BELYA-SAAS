@@ -243,6 +243,26 @@
   .ligne-titre-mask {
     margin-bottom: -0.14em;
   }
+
+  /*
+   * Le voile du vol. Le texte se pose sur le tiers gauche du cadre au
+   * bureau, en bas sur téléphone : le voile ne fonce que cette zone, et
+   * laisse le reste du film à pleine lumière. Une bande en haut garde la
+   * navigation lisible quelle que soit l'image.
+   */
+  .voile-vol {
+    background:
+      linear-gradient(180deg, rgba(26, 20, 32, 0.55) 0%, rgba(26, 20, 32, 0) 22%),
+      linear-gradient(0deg, rgba(26, 20, 32, 0.9) 0%, rgba(26, 20, 32, 0.55) 42%, rgba(26, 20, 32, 0) 70%);
+  }
+
+  @media (min-width: 1024px) {
+    .voile-vol {
+      background:
+        linear-gradient(180deg, rgba(26, 20, 32, 0.45) 0%, rgba(26, 20, 32, 0) 20%),
+        linear-gradient(90deg, rgba(26, 20, 32, 0.82) 0%, rgba(26, 20, 32, 0.5) 34%, rgba(26, 20, 32, 0) 58%);
+    }
+  }
 }
 
 /*

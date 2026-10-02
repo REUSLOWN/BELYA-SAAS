@@ -367,6 +367,59 @@ verifier(
 
 // ── Ce qu'un script ne peut pas trancher ────────────────────────────
 
+// ── 11. Le vol ──────────────────────────────────────────────────────
+
+titre('11. Le vol à travers le salon')
+
+{
+  // src/vol.js importe le manifeste en JSON, ce que Node refuse sans
+  // attribut : on le remplace avant d'évaluer le module.
+  const code = source('src/vol.js').replace(/^import manifeste from .*$/m, 'const manifeste = {}')
+  const { BATTEMENTS, CHAPITRES } = await import(
+    `data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`
+  )
+  const manifeste = JSON.parse(source('src/vol/manifeste.json'))
+
+  const ruptures = BATTEMENTS.slice(1).filter((b, i) => b.de !== BATTEMENTS[i].a)
+  verifier(
+    'les battements se suivent sans saut dans le film',
+    ruptures.length === 0,
+    ruptures.map((b) => b.id).join(', '),
+  )
+  verifier('chaque battement a une distance de défilement', BATTEMENTS.every((b) => b.vh > 0))
+  const inconnus = BATTEMENTS.filter((b) => b.chapitre && !CHAPITRES[b.chapitre])
+  verifier('chaque chapitre cité existe', inconnus.length === 0, inconnus.map((b) => b.id).join(', '))
+  const total = BATTEMENTS.reduce((t, b) => t + b.vh, 0)
+  console.log(`      ${BATTEMENTS.length} battements, ${total} vh de défilement, film de ${BATTEMENTS.at(-1).a} s`)
+
+  if (!manifeste.images) {
+    prevenir('aucune image de vol préparée', 'le héros typographique reste en place (npm run vol -- preparer)')
+  } else {
+    verifier(
+      'la partition tient dans le film',
+      BATTEMENTS.at(-1).a <= manifeste.duree + 0.2,
+      `${BATTEMENTS.at(-1).a} s pour ${manifeste.duree} s`,
+    )
+    for (const piste of ['bureau', 'portrait']) {
+      const m = manifeste[piste]
+      if (!m) continue
+      const echantillon = [0, Math.floor(manifeste.images / 2), manifeste.images - 1]
+      const manquants = echantillon
+        .map((n) => m.motif.replace('{n}', String(n).padStart(4, '0')))
+        .filter((u) => !existsSync(join(DIST, u)))
+      verifier(`piste ${piste} : première, milieu et dernière image servies`, manquants.length === 0, manquants.join(', '))
+      console.log(`      ${piste} : ${manifeste.images} images, ${(m.poids / 1024 / 1024).toFixed(1)} Mo au total`)
+    }
+    const affiches = [manifeste.affiche, manifeste.affichePortrait, ...Object.values(manifeste.affiches || {})]
+    const absentes = affiches.filter((u) => !u || !existsSync(join(DIST, u)))
+    verifier('affiches et images fixes du mode calme servies', absentes.length === 0, absentes.join(', '))
+    verifier(
+      'une image fixe par chapitre pour le mode calme',
+      Object.keys(CHAPITRES).every((c) => manifeste.affiches?.[c]),
+    )
+  }
+}
+
 titre('Non vérifiable ici — à contrôler dans un navigateur')
 
 nonVerifiable(
