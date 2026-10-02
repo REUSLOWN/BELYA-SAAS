@@ -400,15 +400,16 @@ titre('11. Le vol à travers le salon')
       BATTEMENTS.at(-1).a <= manifeste.duree + 0.2,
       `${BATTEMENTS.at(-1).a} s pour ${manifeste.duree} s`,
     )
-    for (const piste of ['bureau', 'portrait']) {
+    for (const piste of ['bureau', 'leger', 'portrait']) {
       const m = manifeste[piste]
       if (!m) continue
-      const echantillon = [0, Math.floor(manifeste.images / 2), manifeste.images - 1]
+      const total = m.images ?? manifeste.images
+      const echantillon = [0, Math.floor(total / 2), total - 1]
       const manquants = echantillon
         .map((n) => m.motif.replace('{n}', String(n).padStart(4, '0')))
         .filter((u) => !existsSync(join(DIST, u)))
       verifier(`piste ${piste} : première, milieu et dernière image servies`, manquants.length === 0, manquants.join(', '))
-      console.log(`      ${piste} : ${manifeste.images} images, ${(m.poids / 1024 / 1024).toFixed(1)} Mo au total`)
+      console.log(`      ${piste} : ${total} images à ${m.fps ?? manifeste.fps} i/s, ${(m.poids / 1024 / 1024).toFixed(1)} Mo au total`)
     }
     const affiches = [manifeste.affiche, manifeste.affichePortrait, ...Object.values(manifeste.affiches || {})]
     const absentes = affiches.filter((u) => !u || !existsSync(join(DIST, u)))

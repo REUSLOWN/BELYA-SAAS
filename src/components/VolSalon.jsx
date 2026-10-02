@@ -37,28 +37,45 @@ import Bouton from './Bouton'
  * 3. LA PAGE SE COMPREND SANS LE FILM.
  *    Le pré-rendu (et le mode « calme ») présente les cinq chapitres
  *    l'un sous l'autre, chacun sur une image fixe. Le vol ne s'active
- *    qu'après coup, si le mouvement est permis et la connexion
- *    généreuse — sur la 3G d'une gérante qui paie au méga-octet, on ne
- *    télécharge pas 20 Mo d'images.
+ *    qu'après coup, si le mouvement est permis et le débit suffisant ;
+ *    sur un débit moyen, il prend une piste légère (voir debitDisponible).
  *
  * 4. LA PARTITION EST DANS `src/vol.js`.
  *    Combien d'écrans pour chaque passage, quelles secondes du film,
  *    quel chapitre : tout se règle là, sans toucher à ce fichier.
  */
 
-function connexionGenereuse() {
+/*
+ * QUE PEUT PORTER LA CONNEXION ?
+ *
+ * On ne se fie pas à `effectiveType` seul : il se déduit surtout de la
+ * latence, et depuis Abidjan la latence vers les serveurs dépasse vite
+ * 270 ms. Une bonne connexion locale s'y annonce « 3g » ; s'y fier
+ * enlevait le vol à presque toutes les visiteuses de la cible. On regarde
+ * le débit estimé (`downlink`, en Mbit/s) :
+ *
+ *   économie de données, 2g, ou moins de 0,6 Mbit/s → mode calme
+ *   moins de 5 Mbit/s                             → piste légère
+ *   au-delà, ou information absente               → piste complète
+ */
+function debitDisponible() {
   const lien = navigator.connection || navigator.mozConnection
-  if (lien?.saveData) return false
-  if (lien && ['slow-2g', '2g', '3g'].includes(lien.effectiveType)) return false
   // Moins de 2 Go de mémoire : on épargne l'appareil.
-  if (navigator.deviceMemory && navigator.deviceMemory < 2) return false
-  return true
+  if (navigator.deviceMemory && navigator.deviceMemory < 2) return 'aucun'
+  if (!lien) return 'complet'
+  if (lien.saveData) return 'aucun'
+  if (['slow-2g', '2g'].includes(lien.effectiveType)) return 'aucun'
+  const debit = Number(lien.downlink)
+  if (Number.isFinite(debit) && debit > 0) {
+    if (debit < 0.6) return 'aucun'
+    if (debit < 5) return 'leger'
+  }
+  return 'complet'
 }
 
 function choisirMode() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 'calme'
-  if (!connexionGenereuse()) return 'calme'
-  return 'vol'
+  return debitDisponible() === 'aucun' ? 'calme' : 'vol'
 }
 
 /* ── Le contenu d'un chapitre, commun aux deux modes ── */
@@ -167,7 +184,22 @@ export default function VolSalon() {
     return () => requete.removeEventListener('change', lire)
   }, [])
 
-  const piste = portrait && M.portrait ? M.portrait : M.bureau
+  /*
+   * La piste : portrait sur téléphone ; au bureau, la piste légère (moins
+   * d'images par seconde, plus petites) quand le débit est moyen. Chaque
+   * piste porte son propre nombre d'images par seconde.
+   */
+  const [debit, setDebit] = useState('complet')
+  useEffect(() => {
+    setDebit(debitDisponible())
+  }, [])
+  const piste = portrait && M.portrait
+    ? M.portrait
+    : debit === 'leger' && M.leger
+      ? M.leger
+      : M.bureau
+  const fps = piste?.fps ?? M.fps
+  const images = piste?.images ?? M.images
   const affiche = portrait && M.affichePortrait ? M.affichePortrait : M.affiche
 
   // ── Le moteur : défilement → image → peinture ──────────────────────
@@ -205,7 +237,7 @@ export default function VolSalon() {
 
     const sequence = new Sequence({
       motif: piste.motif,
-      total: M.images,
+      total: images,
       memoire: portrait ? 16 : 24,
       surArrivee: () => planifierRendu(),
     })
@@ -219,7 +251,7 @@ export default function VolSalon() {
       const fait = Math.min(Math.max(-s.getBoundingClientRect().top, 0), course)
       const vh = course > 0 ? (fait / course) * total : 0
 
-      const n = Math.min(M.images - 1, Math.round(tempsA(plages, vh) * M.fps))
+      const n = Math.min(images - 1, Math.round(tempsA(plages, vh) * fps))
       if (n !== derniereImage) {
         sequence.viser(n, n >= derniereImage ? 1 : -1)
         derniereImage = n
@@ -269,7 +301,7 @@ export default function VolSalon() {
       sequence.fermer()
       setFilmPret(false)
     }
-  }, [mode, piste, portrait, plages, total])
+  }, [mode, piste, fps, images, portrait, plages, total])
 
   const eviter = (e) => {
     e.preventDefault()

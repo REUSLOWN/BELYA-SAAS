@@ -69,47 +69,61 @@ export class Sequence {
   }
 
   /*
-   * L'ordre de téléchargement : l'image voulue, puis 30 images devant et
-   * 8 derrière, puis une image sur huit sur toute la longueur. Ce
-   * maillage grossier fait qu'un saut brusque (barre de défilement
-   * tirée, ancre) tombe toujours près d'une image déjà reçue.
+   * L'ordre de téléchargement :
+   *   1. l'image voulue, puis 30 images devant et 8 derrière ;
+   *   2. un maillage de plus en plus fin sur toute la longueur : une
+   *      image sur 8, puis sur 4, puis sur 2, puis toutes.
+   *
+   * Le maillage fait qu'un saut brusque (barre de défilement tirée,
+   * ancre) tombe toujours près d'une image déjà reçue ; l'affinage
+   * continue pendant que la visiteuse lit, si bien qu'un débit moyen
+   * (1 à 2 Mbit/s, courant à Abidjan) finit par avoir tout le film.
    */
   priorites() {
     const v = this.voulue
-    const liste = [v]
+    const dedans = (n) => n >= 0 && n < this.total
+    const fenetre = [v]
     for (let i = 1; i <= 30; i += 1) {
-      liste.push(v + i * this.sens)
-      if (i <= 8) liste.push(v - i * this.sens)
+      fenetre.push(v + i * this.sens)
+      if (i <= 8) fenetre.push(v - i * this.sens)
     }
-    for (let i = 0; i < this.total; i += 8) liste.push(i)
-    return liste.filter((n) => n >= 0 && n < this.total)
+    const maillage = []
+    for (const pas of [8, 4, 2, 1]) {
+      for (let i = 0; i < this.total; i += pas) maillage.push(i)
+    }
+    return { fenetre: fenetre.filter(dedans), maillage }
   }
 
   planifier() {
     if (this.ferme) return
-    const voulues = this.priorites()
-    const proches = new Set(voulues.slice(0, 39))
 
-    // Annuler les requêtes de la fenêtre fine qu'on a dépassée. Celles
-    // du maillage grossier continuent : elles serviront de toute façon.
-    for (const [n, controle] of this.enCours) {
-      if (!proches.has(n) && n % 8 !== 0) {
-        controle.abort()
+    // Annuler les requêtes de FENÊTRE qu'on a dépassées : elles visaient
+    // un endroit que la visiteuse a quitté. Celles du maillage ne sont
+    // jamais annulées — sinon chaque appel les relancerait aussitôt, et
+    // le navigateur finirait saturé de requêtes annulées.
+    for (const [n, requete] of this.enCours) {
+      if (requete.fenetre && Math.abs(n - this.voulue) > 40) {
+        requete.controle.abort()
         this.enCours.delete(n)
       }
     }
 
-    for (const n of voulues) {
-      if (this.enCours.size >= SIMULTANES) break
-      if (this.fichiers.has(n) || this.enCours.has(n)) continue
-      if ((this.echecs.get(n) ?? 0) >= ESSAIS) continue
-      this.charger(n)
+    const { fenetre, maillage } = this.priorites()
+    const lancer = (n, deFenetre) => {
+      if (this.enCours.size >= SIMULTANES) return false
+      if (this.fichiers.has(n) || this.enCours.has(n)) return true
+      if ((this.echecs.get(n) ?? 0) >= ESSAIS) return true
+      this.charger(n, deFenetre)
+      return true
     }
+    for (const n of fenetre) if (!lancer(n, true)) return
+    for (const n of maillage) if (!lancer(n, false)) return
   }
 
-  async charger(n) {
+  async charger(n, fenetre = false) {
     const controle = new AbortController()
-    this.enCours.set(n, controle)
+    const requete = { controle, fenetre }
+    this.enCours.set(n, requete)
     try {
       const reponse = await fetch(chemin(this.motif, n), {
         signal: controle.signal,
@@ -124,7 +138,7 @@ export class Sequence {
         this.echecs.set(n, (this.echecs.get(n) ?? 0) + 1)
       }
     } finally {
-      if (this.enCours.get(n) === controle) this.enCours.delete(n)
+      if (this.enCours.get(n) === requete) this.enCours.delete(n)
       // Une place s'est libérée : on relance la file. Un délai après un
       // échec, pour ne pas marteler un réseau qui tousse.
       const attente = (this.echecs.get(n) ?? 0) * 400
@@ -193,7 +207,7 @@ export class Sequence {
 
   fermer() {
     this.ferme = true
-    for (const controle of this.enCours.values()) controle.abort()
+    for (const requete of this.enCours.values()) requete.controle.abort()
     this.enCours.clear()
     for (const image of this.images.values()) image.close?.()
     this.images.clear()

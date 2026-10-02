@@ -201,11 +201,19 @@ async function preparer(o) {
   // production avec la nouvelle.
   if (existsSync(base)) rmSync(base, { recursive: true, force: true })
   const ici = join(base, version)
+  /*
+   * Trois pistes, chacune avec ses propres images par seconde :
+   *   bureau    1280 px, cadence complète      — bon débit
+   *   leger      960 px, 8 i/s, plus compressé — débit moyen (le cas
+   *              courant à Abidjan, même sur une bonne connexion)
+   *   portrait  540×960, centre recadré, 10 i/s — téléphones
+   * Le portrait garde le centre du cadre 16:9 : c'est pour ça que les
+   * prompts gardent l'action entre 40 % et 65 % de la largeur.
+   */
   const pistes = {
-    bureau: { vf: `fps=${fps},scale=1280:-2:flags=lanczos`, qualite: 74 },
-    // Le centre du cadre 16:9, en portrait : c'est pour ça que les
-    // prompts gardent l'action entre 40 % et 65 % de la largeur.
-    portrait: { vf: `fps=${fps},crop=ih*9/16:ih,scale=540:960:flags=lanczos`, qualite: 72 },
+    bureau: { fps, vf: `fps=${fps},scale=1280:-2:flags=lanczos`, qualite: 74, l: 1280, h: 720 },
+    leger: { fps: 8, vf: 'fps=8,scale=960:-2:flags=lanczos', qualite: 62, l: 960, h: 540 },
+    portrait: { fps: 10, vf: 'fps=10,crop=ih*9/16:ih,scale=540:960:flags=lanczos', qualite: 66, l: 540, h: 960 },
   }
 
   const manifeste = { version, fps, duree: Number(duree(master).toFixed(3)), images: 0 }
@@ -219,11 +227,14 @@ async function preparer(o) {
     ])
     const images = readdirSync(dossier).filter((f) => f.endsWith('.webp')).length
     const poids = poidsDossier(dossier)
-    manifeste.images = manifeste.images ? Math.min(manifeste.images, images) : images
+    if (nom === 'bureau') manifeste.images = images
     manifeste[nom] = {
       motif: `/vol/${version}/${nom}/frame-{n}.webp`,
+      fps: p.fps,
+      images,
       poids,
-      ...(nom === 'bureau' ? { largeur: 1280, hauteur: 720 } : { largeur: 540, hauteur: 960 }),
+      largeur: p.l,
+      hauteur: p.h,
     }
     console.log(`  ${nom.padEnd(9)} ${images} images · ${(poids / Mo).toFixed(1)} Mo · ${((poids / images) / 1024).toFixed(0)} Ko/image`)
   }
