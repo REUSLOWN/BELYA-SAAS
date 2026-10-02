@@ -1,17 +1,25 @@
 # Le vol : note de production
 
-## État au 2 octobre 2026
+## État au 2 octobre 2026, soir
+
+Générateur : **Google Flow** (compte gratuit, 50 crédits/jour). Le connecteur Higgsfield n'a jamais été connecté ; aucun crédit Higgsfield utilisé.
 
 | Élément | État |
 |---|---|
-| Histoire visuelle, parcours, plan de défilement | ✅ `docs/vol/HISTOIRE-VISUELLE.md` |
-| Planche de style | ✅ publiée en artefact (« Planche de style Belya ») ; mêmes jetons que `tailwind.config.js` |
-| Logo | ✅ celui du site, inchangé (logotype « Belya. » et icône `public/favicon.svg`). Rien n'a été redessiné ni régénéré. |
-| Moteur du site (canvas épinglé, partition, chargeur, mode calme) | ✅ branche `vol-fpv` |
-| Prompts Higgsfield | ✅ `docs/vol/PROMPTS-VOL.md` |
-| Images de départ, image de révélation, extraits A/B/C, master | ⏳ **non générés** : le connecteur Higgsfield n'était pas connecté (« connexion incomplète ») |
-| Identifiants de travaux Higgsfield | aucun |
-| Crédits consommés | 0 |
+| Images de départ | 3 générées (Nano Banana Pro, gratuites) ; retenue : « Open glass doors of salon » (la porte, tiers gauche calme) |
+| Image de révélation | ✅ « Aerial view of salon building » : arrière du salon, cour, serviettes magenta, rue, boulevard, lagune |
+| Film | ✅ 31 s en un seul plan, scène Flow « Untitled Scene 10-02 18:55:00 » : 1 extrait Veo 3.1 Fast (8 s) + 3 prolongations Veo 3.1 Lite. Exporté en 1280×720, `medias-bruts/vol-jour1.mp4` (non versionné) |
+| Inspection | `npm run vol -- inspecter` : aucune coupe (y compris au seuil 0,15) ; planche-contact et zooms regardés |
+| Crédits | 50 / 50 du jour (20 + 10 + 10 + 10). Rien acheté |
+| Séquence servie | `public/vol/v202610021923/` : 465 images à 15 i/s, 14,8 Mo bureau, 7,8 Mo portrait |
+| Manque | **la sortie, le demi-tour et la révélation** (dernier extrait, crédits du lendemain) ; la fin est provisoire : tenue sur la porte de la cour avec le chapitre 05 |
+
+### Défauts connus du film actuel
+
+1. Au bac (≈ 17–20 s), les épaules de la cliente semblent dans l'eau du bac, et la coiffeuse lui lave plutôt le visage que les tresses. À régénérer (prolongation Lite, 10 crédits) avec « le bac ne contient que ses tresses ; son corps reste sur le fauteuil, hors du bac ».
+2. Sur téléphone, au battement du fauteuil vide (11 s), le recadrage centré coupe le fauteuil. À corriger par un point focal par battement.
+3. 720p : net au bureau (1280 px), un peu doux en portrait (agrandi 1,33×).
+4. La caméra ralentit presque à l'arrêt en fin de chaque extrait de 8 s ; la partition place les tenues et les transitions sur ces moments.
 
 ## Direction retenue
 

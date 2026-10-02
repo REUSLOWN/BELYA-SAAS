@@ -50,31 +50,26 @@ export const BATTEMENTS = [
   // 01 — Arrivée. On tient la première image : le titre se lit avant
   // que quoi que ce soit ne bouge.
   { id: 'arrivee-tenue', vh: 55, de: 0, a: 0, chapitre: 'arrivee' },
-  { id: 'arrivee', vh: 120, de: 0, a: 6, chapitre: 'arrivee' },
+  { id: 'arrivee', vh: 110, de: 0, a: 3.5, chapitre: 'arrivee' },
 
-  // 02 — La salle. La plus dense en manœuvres : elle reçoit le plus de
-  // défilement. Tenue sur le fauteuil vide, le cœur de l'histoire.
-  { id: 'salle', vh: 150, de: 6, a: 12.5, chapitre: 'salle' },
-  { id: 'salle-tenue', vh: 45, de: 12.5, a: 12.5, chapitre: 'salle' },
-  { id: 'salle-fin', vh: 40, de: 12.5, a: 15, chapitre: null },
+  // 02 — La salle : les postes, le pilier-miroir, puis le fauteuil vide.
+  // Tenue sur le fauteuil, le cœur de l'histoire.
+  { id: 'salle', vh: 140, de: 3.5, a: 11, chapitre: 'salle' },
+  { id: 'salle-tenue', vh: 45, de: 11, a: 11, chapitre: 'salle' },
+  { id: 'salle-fin', vh: 50, de: 11, a: 14.5, chapitre: null },
 
   // Transition — le rideau de l'arrière-boutique. Pas de texte.
-  { id: 'rideau', vh: 50, de: 15, a: 17, chapitre: null },
+  { id: 'rideau', vh: 50, de: 14.5, a: 16.5, chapitre: null },
 
-  // 03 — L'arrière-boutique : le bac, les mains, les produits.
-  { id: 'arriere', vh: 170, de: 17, a: 24, chapitre: 'rappel' },
+  // 03 — L'arrière-boutique : le bac, les mains, les étagères.
+  { id: 'arriere', vh: 160, de: 16.5, a: 23.5, chapitre: 'rappel' },
 
-  // 04 — La réserve, jusqu'à la porte de la cour.
-  { id: 'reserve', vh: 140, de: 24, a: 30, chapitre: 'attente' },
+  // 04 — La réserve, jusqu'à la porte ouverte sur la cour.
+  { id: 'reserve', vh: 150, de: 23.5, a: 28.9, chapitre: 'attente' },
 
-  // Transition — sortie dans la cour, puis demi-tour. Le demi-tour a
-  // son propre battement, court mais à lui : sinon il se lit comme un saut.
-  { id: 'sortie', vh: 70, de: 30, a: 34, chapitre: null },
-  { id: 'demi-tour', vh: 55, de: 34, a: 36, chapitre: null },
-
-  // 05 — La révélation, puis la tenue finale sur le quartier.
-  { id: 'revelation', vh: 140, de: 36, a: 42, chapitre: 'fin' },
-  { id: 'fin-tenue', vh: 75, de: 42, a: 42, chapitre: 'fin' },
+  // PROVISOIRE, en attendant le dernier extrait (sortie, demi-tour,
+  // révélation) : on tient la porte de la cour avec le chapitre final.
+  { id: 'fin-tenue', vh: 75, de: 28.9, a: 28.9, chapitre: 'fin' },
 ]
 
 /*

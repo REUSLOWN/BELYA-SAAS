@@ -62,13 +62,21 @@ function lancer(outil, args, { silencieux = false } = {}) {
   return r
 }
 
+/*
+ * La durée de la piste VIDÉO, pas celle du fichier : les exports de Flow
+ * portent une piste audio plus longue de deux secondes, qui allongerait
+ * le film d'images figées.
+ */
 function duree(fichier) {
   const r = lancer(
     FFPROBE,
-    ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', fichier],
+    ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=duration', '-of', 'csv=p=0', fichier],
     { silencieux: true },
   )
-  return Number(r.stdout.trim())
+  const video = Number(r.stdout.trim())
+  if (Number.isFinite(video) && video > 0) return video
+  const f = lancer(FFPROBE, ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', fichier], { silencieux: true })
+  return Number(f.stdout.trim())
 }
 
 /* Les instants où FFmpeg voit un changement de plan brutal. */
@@ -205,7 +213,7 @@ async function preparer(o) {
     const dossier = join(ici, nom)
     mkdirSync(dossier, { recursive: true })
     lancer(FFMPEG, [
-      '-y', '-v', 'error', '-i', master, '-an', '-vf', p.vf,
+      '-y', '-v', 'error', '-i', master, '-an', '-t', String(manifeste.duree), '-vf', p.vf,
       '-c:v', 'libwebp', '-quality', String(p.qualite), '-compression_level', '6',
       '-start_number', '0', join(dossier, 'frame-%04d.webp'),
     ])
