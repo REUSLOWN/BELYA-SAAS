@@ -48,29 +48,27 @@ import Bouton from './Bouton'
 /*
  * QUE PEUT PORTER LA CONNEXION ?
  *
- * On ne se fie pas à `effectiveType` seul : il se déduit surtout de la
- * latence, et depuis Abidjan la latence vers les serveurs dépasse vite
- * 270 ms. Une bonne connexion locale s'y annonce « 3g » ; s'y fier
- * enlevait le vol à presque toutes les visiteuses de la cible. On regarde
- * le débit estimé (`downlink`, en Mbit/s) :
+ * Mesuré sur une vraie connexion d'Abidjan : 1,4 à 7 Mbit/s selon le
+ * moment, et 450 ms de latence. `effectiveType` y annonce « 3g » à cause
+ * de la latence ; et le débit affiché au chargement peut être un pic
+ * passager. On reste donc prudent :
  *
  *   économie de données, 2g, ou moins de 0,6 Mbit/s → mode calme
- *   moins de 5 Mbit/s                             → piste légère
- *   au-delà, ou information absente               → piste complète
+ *   au moins 10 Mbit/s ET latence ≤ 150 ms          → piste complète
+ *   tout le reste, information absente comprise    → piste légère
  */
 function debitDisponible() {
   const lien = navigator.connection || navigator.mozConnection
   // Moins de 2 Go de mémoire : on épargne l'appareil.
   if (navigator.deviceMemory && navigator.deviceMemory < 2) return 'aucun'
-  if (!lien) return 'complet'
+  if (!lien) return 'leger'
   if (lien.saveData) return 'aucun'
   if (['slow-2g', '2g'].includes(lien.effectiveType)) return 'aucun'
   const debit = Number(lien.downlink)
-  if (Number.isFinite(debit) && debit > 0) {
-    if (debit < 0.6) return 'aucun'
-    if (debit < 5) return 'leger'
-  }
-  return 'complet'
+  const latence = Number(lien.rtt)
+  if (Number.isFinite(debit) && debit > 0 && debit < 0.6) return 'aucun'
+  if (debit >= 10 && Number.isFinite(latence) && latence <= 150) return 'complet'
+  return 'leger'
 }
 
 function choisirMode() {

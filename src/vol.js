@@ -49,27 +49,27 @@ export const VOL_ACTIF = (manifeste?.images ?? 0) > 0
 export const BATTEMENTS = [
   // 01 — Arrivée. On tient la première image : le titre se lit avant
   // que quoi que ce soit ne bouge.
-  { id: 'arrivee-tenue', vh: 55, de: 0, a: 0, chapitre: 'arrivee' },
-  { id: 'arrivee', vh: 110, de: 0, a: 3.5, chapitre: 'arrivee' },
+  { id: 'arrivee-tenue', vh: 45, de: 0, a: 0, chapitre: 'arrivee' },
+  { id: 'arrivee', vh: 80, de: 0, a: 3.5, chapitre: 'arrivee' },
 
   // 02 — La salle : les postes, le pilier-miroir, puis le fauteuil vide.
   // Tenue sur le fauteuil, le cœur de l'histoire.
-  { id: 'salle', vh: 140, de: 3.5, a: 11, chapitre: 'salle' },
-  { id: 'salle-tenue', vh: 45, de: 11, a: 11, chapitre: 'salle' },
-  { id: 'salle-fin', vh: 50, de: 11, a: 14.5, chapitre: null },
+  { id: 'salle', vh: 110, de: 3.5, a: 11, chapitre: 'salle' },
+  { id: 'salle-tenue', vh: 35, de: 11, a: 11, chapitre: 'salle' },
+  { id: 'salle-fin', vh: 35, de: 11, a: 14.5, chapitre: null },
 
   // Transition — le rideau de l'arrière-boutique. Pas de texte.
-  { id: 'rideau', vh: 50, de: 14.5, a: 16.5, chapitre: null },
+  { id: 'rideau', vh: 40, de: 14.5, a: 16.5, chapitre: null },
 
   // 03 — L'arrière-boutique : le bac, les mains, les étagères.
-  { id: 'arriere', vh: 160, de: 16.5, a: 23.5, chapitre: 'rappel' },
+  { id: 'arriere', vh: 120, de: 16.5, a: 23.5, chapitre: 'rappel' },
 
   // 04 — La réserve, jusqu'à la porte ouverte sur la cour.
-  { id: 'reserve', vh: 150, de: 23.5, a: 28.9, chapitre: 'attente' },
+  { id: 'reserve', vh: 110, de: 23.5, a: 28.9, chapitre: 'attente' },
 
   // PROVISOIRE, en attendant le dernier extrait (sortie, demi-tour,
   // révélation) : on tient la porte de la cour avec le chapitre final.
-  { id: 'fin-tenue', vh: 75, de: 28.9, a: 28.9, chapitre: 'fin' },
+  { id: 'fin-tenue', vh: 60, de: 28.9, a: 28.9, chapitre: 'fin' },
 ]
 
 /*

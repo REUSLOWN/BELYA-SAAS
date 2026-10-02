@@ -1,10 +1,10 @@
 {
-  "version": "v202610021948",
+  "version": "v202610022044",
   "fps": 15,
   "duree": 31,
   "images": 465,
   "bureau": {
-    "motif": "/vol/v202610021948/bureau/frame-{n}.webp",
+    "motif": "/vol/v202610022044/bureau/frame-{n}.webp",
     "fps": 15,
     "images": 465,
     "poids": 15559264,
@@ -12,7 +12,7 @@
     "hauteur": 720
   },
   "leger": {
-    "motif": "/vol/v202610021948/leger/frame-{n}.webp",
+    "motif": "/vol/v202610022044/leger/frame-{n}.webp",
     "fps": 8,
     "images": 248,
     "poids": 5117730,
@@ -20,20 +20,20 @@
     "hauteur": 540
   },
   "portrait": {
-    "motif": "/vol/v202610021948/portrait/frame-{n}.webp",
-    "fps": 10,
-    "images": 310,
-    "poids": 5093126,
+    "motif": "/vol/v202610022044/portrait/frame-{n}.webp",
+    "fps": 8,
+    "images": 248,
+    "poids": 4076322,
     "largeur": 540,
     "hauteur": 960
   },
-  "affiche": "/vol/v202610021948/affiche.webp",
-  "affichePortrait": "/vol/v202610021948/affiche-portrait.webp",
+  "affiche": "/vol/v202610022044/affiche.webp",
+  "affichePortrait": "/vol/v202610022044/affiche-portrait.webp",
   "affiches": {
-    "arrivee": "/vol/v202610021948/chapitre-arrivee.webp",
-    "salle": "/vol/v202610021948/chapitre-salle.webp",
-    "rappel": "/vol/v202610021948/chapitre-rappel.webp",
-    "attente": "/vol/v202610021948/chapitre-attente.webp",
-    "fin": "/vol/v202610021948/chapitre-fin.webp"
+    "arrivee": "/vol/v202610022044/chapitre-arrivee.webp",
+    "salle": "/vol/v202610022044/chapitre-salle.webp",
+    "rappel": "/vol/v202610022044/chapitre-rappel.webp",
+    "attente": "/vol/v202610022044/chapitre-attente.webp",
+    "fin": "/vol/v202610022044/chapitre-fin.webp"
   }
 }

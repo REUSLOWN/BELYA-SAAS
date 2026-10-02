@@ -206,14 +206,14 @@ async function preparer(o) {
    *   bureau    1280 px, cadence complète      — bon débit
    *   leger      960 px, 8 i/s, plus compressé — débit moyen (le cas
    *              courant à Abidjan, même sur une bonne connexion)
-   *   portrait  540×960, centre recadré, 10 i/s — téléphones
+   *   portrait  540×960, centre recadré, 8 i/s — téléphones
    * Le portrait garde le centre du cadre 16:9 : c'est pour ça que les
    * prompts gardent l'action entre 40 % et 65 % de la largeur.
    */
   const pistes = {
     bureau: { fps, vf: `fps=${fps},scale=1280:-2:flags=lanczos`, qualite: 74, l: 1280, h: 720 },
     leger: { fps: 8, vf: 'fps=8,scale=960:-2:flags=lanczos', qualite: 62, l: 960, h: 540 },
-    portrait: { fps: 10, vf: 'fps=10,crop=ih*9/16:ih,scale=540:960:flags=lanczos', qualite: 66, l: 540, h: 960 },
+    portrait: { fps: 8, vf: 'fps=8,crop=ih*9/16:ih,scale=540:960:flags=lanczos', qualite: 66, l: 540, h: 960 },
   }
 
   const manifeste = { version, fps, duree: Number(duree(master).toFixed(3)), images: 0 }

@@ -19,8 +19,21 @@
  *     on peint alors la plus proche qu'on possède.
  */
 
-const SIMULTANES = 6
+/*
+ * 12 requêtes à la fois. Depuis Abidjan, chaque requête attend ~450 ms
+ * de latence avant le premier octet : c'est la latence, pas le débit, qui
+ * limite. Vercel sert en HTTP/2, donc ces requêtes partagent une seule
+ * connexion.
+ */
+const SIMULTANES = 12
 const ESSAIS = 3
+
+/*
+ * Combien d'images on charge DEVANT la position avant de passer au
+ * maillage. 60, c'est 7 à 8 s de film en piste légère : la visiteuse
+ * défile surtout vers l'avant, et ce qui suit immédiatement doit être là.
+ */
+const DEVANT = 60
 
 function chemin(motif, n) {
   return motif.replace('{n}', String(n).padStart(4, '0'))
@@ -70,7 +83,7 @@ export class Sequence {
 
   /*
    * L'ordre de téléchargement :
-   *   1. l'image voulue, puis 30 images devant et 8 derrière ;
+   *   1. l'image voulue, puis DEVANT images devant et 8 derrière ;
    *   2. un maillage de plus en plus fin sur toute la longueur : une
    *      image sur 8, puis sur 4, puis sur 2, puis toutes.
    *
@@ -83,7 +96,7 @@ export class Sequence {
     const v = this.voulue
     const dedans = (n) => n >= 0 && n < this.total
     const fenetre = [v]
-    for (let i = 1; i <= 30; i += 1) {
+    for (let i = 1; i <= DEVANT; i += 1) {
       fenetre.push(v + i * this.sens)
       if (i <= 8) fenetre.push(v - i * this.sens)
     }
@@ -102,7 +115,7 @@ export class Sequence {
     // jamais annulées — sinon chaque appel les relancerait aussitôt, et
     // le navigateur finirait saturé de requêtes annulées.
     for (const [n, requete] of this.enCours) {
-      if (requete.fenetre && Math.abs(n - this.voulue) > 40) {
+      if (requete.fenetre && Math.abs(n - this.voulue) > DEVANT + 10) {
         requete.controle.abort()
         this.enCours.delete(n)
       }
