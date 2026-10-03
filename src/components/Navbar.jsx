@@ -42,6 +42,22 @@ export default function Navbar() {
 
     const auDefilement = () => {
       const y = window.scrollY
+
+      // L'autopilote du vol fait avancer le film en déplaçant le
+      // défilement, mais la scène est collée : pour la visiteuse, la page
+      // ne bouge pas. Cacher la barre ici la ferait disparaître sans
+      // raison visible, en plein film. On suit la position sans la cacher.
+      //
+      // Une exception : « Revoir » remonte au début du film. Remonter
+      // montre la barre, comme pour un défilement de la visiteuse — sans
+      // ça, une barre cachée par un coup de molette plus tôt resterait
+      // absente en haut de page, là où l'on cherche la navigation.
+      if (window.__belyaAutopilote) {
+        if (y < dernier) setCachee(false)
+        dernier = y
+        return
+      }
+
       const delta = y - dernier
 
       // Sous 14 px de mouvement, on ne décide rien : c'est le rebond

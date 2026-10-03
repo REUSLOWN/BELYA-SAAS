@@ -19,6 +19,7 @@ import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 const RACINE = join(import.meta.dirname, '..')
 const DIST = join(RACINE, 'dist')
@@ -375,7 +376,7 @@ titre('11. Le vol à travers le salon')
   // src/vol.js importe le manifeste en JSON, ce que Node refuse sans
   // attribut : on le remplace avant d'évaluer le module.
   const code = source('src/vol.js').replace(/^import manifeste from .*$/m, 'const manifeste = {}')
-  const { BATTEMENTS, CHAPITRES } = await import(
+  const { AUTOPILOTE, BATTEMENTS, CHAPITRES } = await import(
     `data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`
   )
   const manifeste = JSON.parse(source('src/vol/manifeste.json'))
@@ -391,6 +392,41 @@ titre('11. Le vol à travers le salon')
   verifier('chaque chapitre cité existe', inconnus.length === 0, inconnus.map((b) => b.id).join(', '))
   const total = BATTEMENTS.reduce((t, b) => t + b.vh, 0)
   console.log(`      ${BATTEMENTS.length} battements, ${total} vh de défilement, film de ${BATTEMENTS.at(-1).a} s`)
+
+  /*
+   * L'autopilote. Une vitesse nulle figerait le film pour toujours, une
+   * tenue nulle supprimerait le temps de lecture ; une reprise trop
+   * courte relancerait le film pendant qu'on lit la phrase où l'on vient
+   * de s'arrêter. Et on vérifie le calcul lui-même : avancer à 60 images
+   * par seconde doit arriver au bout en la durée annoncée.
+   */
+  const { partition, avancer, dureeAutopilote } = await import(
+    pathToFileURL(join(RACINE, 'src', 'lib', 'sequence.js')).href
+  )
+  verifier(
+    'autopilote : vitesse et durée de tenue positives',
+    AUTOPILOTE?.vitesse > 0 && AUTOPILOTE?.tenueParVh > 0,
+    JSON.stringify(AUTOPILOTE),
+  )
+  verifier(
+    'autopilote : au moins 2 s sans geste avant de reprendre',
+    AUTOPILOTE?.repriseApres >= 2,
+    `${AUTOPILOTE?.repriseApres} s`,
+  )
+  const { plages, total: totalVh } = partition(BATTEMENTS)
+  const annonce = dureeAutopilote(plages, AUTOPILOTE)
+  let position = 0
+  let ecoule = 0
+  while (position < totalVh && ecoule < 600) {
+    position = avancer(plages, position, 1 / 60, AUTOPILOTE)
+    ecoule += 1 / 60
+  }
+  verifier(
+    'autopilote : le film va au bout en la durée annoncée',
+    Math.abs(ecoule - annonce) < 0.05,
+    `${ecoule.toFixed(2)} s mesurées pour ${annonce.toFixed(2)} s annoncées`,
+  )
+  console.log(`      autopilote : le film dure ${annonce.toFixed(1)} s s'il défile seul`)
 
   if (!manifeste.images) {
     prevenir('aucune image de vol préparée', 'le héros typographique reste en place (npm run vol -- preparer)')

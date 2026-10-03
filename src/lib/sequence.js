@@ -257,6 +257,59 @@ export function tempsA(plages, vh) {
 }
 
 /*
+ * L'AUTOPILOTE : avancer de `dt` secondes dans la partition, sans que
+ * personne ne défile.
+ *
+ * Chaque battement a une durée de lecture :
+ *   • un MOUVEMENT dure le temps de film qu'il couvre, divisé par la
+ *     vitesse — 1 = le film à sa vitesse réelle ;
+ *   • une TENUE n'a pas de durée de film, puisque l'image ne bouge pas.
+ *     Elle dure `tenueParVh` secondes par vh : c'est le temps qu'on
+ *     laisse pour lire, proportionnel à la place que la partition lui
+ *     donne au défilement.
+ *
+ * On avance battement par battement. Un pas qui franchit une frontière
+ * reporte le reste sur le suivant : sans ça, sur un appareil qui saccade,
+ * un grand pas pourrait enjamber une tenue courte et faire disparaître un
+ * temps de lecture.
+ */
+export function dureeBattement(plage, { vitesse, tenueParVh }) {
+  return plage.a === plage.de
+    ? plage.vh * tenueParVh
+    : (plage.a - plage.de) / vitesse
+}
+
+export function avancer(plages, vh, dt, reglages) {
+  const total = plages.length ? plages[plages.length - 1].fin : 0
+  let position = Math.max(0, vh)
+  let reste = dt
+  while (reste > 0 && position < total) {
+    const plage = plages.find((p) => position < p.fin)
+    if (!plage) break
+    const duree = dureeBattement(plage, reglages)
+    if (!(duree > 0)) {
+      position = plage.fin
+      continue
+    }
+    const taux = plage.vh / duree // vh par seconde
+    const avantLaFin = (plage.fin - position) / taux
+    if (reste < avantLaFin) {
+      position += reste * taux
+      reste = 0
+    } else {
+      position = plage.fin
+      reste -= avantLaFin
+    }
+  }
+  return Math.min(position, total)
+}
+
+/* La durée du film entier en autopilote, tenues comprises, en secondes. */
+export function dureeAutopilote(plages, reglages) {
+  return plages.reduce((t, p) => t + dureeBattement(p, reglages), 0)
+}
+
+/*
  * L'opacité de chaque chapitre à une position donnée. Un chapitre couvre
  * la réunion de ses battements ; il entre et sort par un fondu de
  * `fondu` vh, sauf le premier (visible au repos) et le dernier (tenu

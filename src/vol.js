@@ -73,6 +73,39 @@ export const BATTEMENTS = [
 ]
 
 /*
+ * L'AUTOPILOTE — le film avance seul quand personne ne défile.
+ *
+ * Sans lui, une visiteuse qui ne pense pas à défiler voit une image fixe
+ * et un titre, et peut repartir sans savoir qu'il y avait un film. Avec
+ * lui, le vol se joue tout seul ; dès qu'elle défile, touche l'écran ou
+ * appuie sur une touche, elle reprend la main exactement où en est le
+ * film, et il repart seul quand elle s'arrête.
+ *
+ *   vitesse       1 = le film à sa vitesse réelle. 0,8 laisse plus de
+ *                 temps pour lire ; au-dessus de 1, la caméra court.
+ *   tenueParVh    Durée d'une tenue, en secondes par vh. À 0,05, la
+ *                 tenue d'arrivée (45 vh) dure 2,25 s : le temps de
+ *                 lire le titre, pas plus.
+ *   repriseApres  Secondes sans aucun geste avant que le film reprenne
+ *                 seul. Assez pour finir de lire la phrase jusqu'où l'on
+ *                 vient de défiler.
+ *   departApres   Secondes après la première image peinte : l'affiche
+ *                 cède la place au film par un fondu de 0,7 s, et il ne
+ *                 doit pas bouger avant d'être visible.
+ *
+ * Au total, le film dure environ 36 s en autopilote : 28,9 s de
+ * mouvement et 7 s de tenues (`npm run verifier` affiche le compte).
+ * Raccourcir une tenue dans BATTEMENTS la raccourcit aussi ici : les deux
+ * restent proportionnels, voulu ou non.
+ */
+export const AUTOPILOTE = {
+  vitesse: 1,
+  tenueParVh: 0.05,
+  repriseApres: 4,
+  departApres: 0.8,
+}
+
+/*
  * Les chapitres. `position` place le bloc : `gauche` sur le tiers calme
  * du cadre au bureau, toujours en bas sur téléphone.
  */

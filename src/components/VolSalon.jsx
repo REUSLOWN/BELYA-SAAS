@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Pause, Play, RotateCcw } from 'lucide-react'
 import { HERO, lienWhatsAppGeneral } from '../donnees'
 import {
   ANCRE_APRES_VOL,
+  AUTOPILOTE,
   BATTEMENTS,
   CHAPITRES,
   CREDIT_VOL,
@@ -9,7 +11,7 @@ import {
   MANIFESTE_VOL as M,
   SEUIL_PORTRAIT,
 } from '../vol'
-import { Sequence, opacites, partition, tempsA } from '../lib/sequence'
+import { Sequence, avancer, opacites, partition, tempsA } from '../lib/sequence'
 import { glisserVers } from '../lib/defilement'
 import Bouton from './Bouton'
 
@@ -29,10 +31,22 @@ import Bouton from './Bouton'
  *    liens sont de vrais éléments, nets, sélectionnables, traduisibles.
  *    Un chapitre masqué est `inert` : il ne prend ni clic ni tabulation.
  *
- * 2. PAS DE DÉTOURNEMENT DU DÉFILEMENT.
+ * 2. LE DÉFILEMENT RESTE À LA VISITEUSE.
  *    La section est simplement haute ; la scène y est `sticky`. On
  *    défile normalement, dans les deux sens, au doigt, à la molette, au
- *    clavier. On ne fait que LIRE la position.
+ *    clavier, et la position du défilement est la seule vérité : c'est
+ *    elle qui choisit l'image et le chapitre.
+ *
+ *    L'AUTOPILOTE écrit cette position — et seulement quand personne
+ *    ne la touche. Si la visiteuse ne défile pas, il fait descendre la
+ *    page à l'intérieur du vol au rythme du film ; la scène étant
+ *    collée, la page ne bouge pas à l'œil, seul le film avance. Au
+ *    premier geste (molette, doigt, touche, clic), il lâche tout, et
+ *    elle reprend exactement où en est le film, sans saut. Il repart
+ *    seul après `AUTOPILOTE.repriseApres` secondes sans geste. Il ne
+ *    fait jamais sortir du vol, s'arrête à la dernière image, et un
+ *    bouton Pause l'arrête pour de bon (WCAG 2.2.2 : tout mouvement de
+ *    plus de cinq secondes doit pouvoir être arrêté).
  *
  * 3. LA PAGE SE COMPREND SANS LE FILM.
  *    Le pré-rendu (et le mode « calme ») présente les cinq chapitres
@@ -119,7 +133,7 @@ function Chapitre({ cle, enVol }) {
         <p className="legende mt-4 text-creme/70">{HERO.micro}</p>
         {enVol && (
           <p className="legende mt-8 hidden text-creme/60 lg:block" aria-hidden="true">
-            Défilez pour entrer ↓
+            La visite avance seule · défilez pour aller à votre rythme ↓
           </p>
         )}
       </>
@@ -171,6 +185,20 @@ export default function VolSalon() {
   const toile = useRef(null)
   const blocs = useRef({})
 
+  /*
+   * Le bouton de l'autopilote. `pause` est une pause DEMANDÉE : elle tient
+   * jusqu'à ce qu'on appuie sur Reprendre, contrairement à la pause
+   * automatique après un geste, qui se lève seule. `auBout` change le
+   * bouton en « Revoir » sur la dernière image.
+   *
+   * La boucle lit `pauseRef` et non l'état : elle tourne à chaque image
+   * et ne doit pas être recréée à chaque appui.
+   */
+  const [pause, setPause] = useState(false)
+  const [auBout, setAuBout] = useState(false)
+  const pauseRef = useRef(false)
+  const commandes = useRef({ reprendre() {}, revoir() {} })
+
   const { plages, total } = useMemo(() => partition(BATTEMENTS), [])
 
   useEffect(() => {
@@ -210,6 +238,10 @@ export default function VolSalon() {
     let derniereImage = -1
     let peinte = null
     let demande = 0
+    let dernierBout = false
+    // L'instant où le film a été peint pour la première fois : l'autopilote
+    // attend qu'il soit visible avant de le faire bouger.
+    let premiereImage = 0
 
     const dimensionner = () => {
       const ratio = Math.min(window.devicePixelRatio || 1, 2)
@@ -230,6 +262,7 @@ export default function VolSalon() {
       const h = image.height * echelle
       contexte.drawImage(image, (canvas.width - l) / 2, (canvas.height - h) / 2, l, h)
       if (!peinte) setFilmPret(true)
+      if (!premiereImage) premiereImage = performance.now()
       peinte = image
     }
 
@@ -260,6 +293,15 @@ export default function VolSalon() {
       canvas.dataset.image = String(n)
       canvas.dataset.exacte = sequence.images.has(n) ? 'oui' : 'non'
 
+      // Sur la dernière image, le bouton de l'autopilote devient « Revoir ».
+      // On ne prévient React qu'au changement : `rendre` tourne à chaque
+      // image du défilement.
+      const bout = course > 0 && fait >= course - 1
+      if (bout !== dernierBout) {
+        dernierBout = bout
+        setAuBout(bout)
+      }
+
       if (vh !== derniereVh) {
         derniereVh = vh
         const o = opacites(plages, vh, FONDU_VH)
@@ -287,19 +329,184 @@ export default function VolSalon() {
       planifierRendu()
     }
 
+    // ── L'autopilote : le film avance seul quand personne ne défile ───
+    //
+    // Il ne peint rien : il pose une position de défilement, et c'est
+    // `rendre`, déclenché par ce défilement comme par n'importe quel
+    // autre, qui peint l'image et place les chapitres. Une seule vérité,
+    // la position — d'où l'absence de saut quand la visiteuse reprend.
+
+    // Le dernier geste de la visiteuse. -Infinity : au chargement, rien ne
+    // retient le film.
+    let derniereInteraction = -Infinity
+    // Où en est l'autopilote, en vh de la partition. On le garde en
+    // nombre réel plutôt que de le relire sur le défilement à chaque
+    // image : le navigateur arrondit la position au pixel, et à moins de
+    // deux pixels par image (tenues, écran à 120 Hz) l'arrondi finirait
+    // par figer le film. `null` = à relire au prochain départ.
+    let position = null
+    // La position que l'autopilote vient de poser, pour reconnaître les
+    // défilements qui ne viennent pas de lui.
+    let posee = null
+    let precedent = performance.now()
+    let pilote = 0
+
+    const lacher = () => {
+      derniereInteraction = performance.now()
+      position = null
+      posee = null
+      window.__belyaAutopilote = false
+    }
+
+    /*
+     * Un défilement que l'autopilote n'a pas posé compte comme un geste :
+     * l'élan qui suit un glissé de doigt sur iOS, une ancre, la barre de
+     * défilement tirée, la recherche dans la page. Trois pixels de
+     * tolérance pour l'arrondi du navigateur.
+     */
+    const surDefilement = () => {
+      if (posee !== null && Math.abs(window.scrollY - posee) > 3) lacher()
+      planifierRendu()
+    }
+
+    const poser = (y) => {
+      posee = y
+      window.__belyaAutopilote = true
+      // Par Lenis quand il est là, pour que son état interne suive ; sinon
+      // un saut « instant », parce que `html` porte scroll-behavior:
+      // smooth et qu'un scrollTo nu glisserait au lieu de se poser.
+      const lenis = window.__belyaDefilement
+      if (lenis) lenis.scrollTo(y, { immediate: true })
+      else window.scrollTo({ top: y, behavior: 'instant' })
+    }
+
+    /*
+     * Où en est-on dans le vol ? `null` si l'on n'y est pas — avant la
+     * section, après elle, ou sur sa dernière image. L'autopilote ne fait
+     * JAMAIS sortir du vol : il s'arrête au bout, et la suite de la page
+     * reste à la visiteuse.
+     */
+    const dansLeVol = () => {
+      const s = section.current
+      const st = scene.current
+      if (!s || !st) return null
+      const course = s.offsetHeight - st.offsetHeight
+      const fait = -s.getBoundingClientRect().top
+      if (course <= 0 || fait < -2 || fait >= course - 1) return null
+      return { s, course, fait: Math.max(0, fait) }
+    }
+
+    /*
+     * Le focus clavier dans un chapitre suspend le film : sinon le chapitre
+     * s'efface sous le bouton qu'on vient d'atteindre, devient `inert`, et
+     * le focus tombe dans le vide.
+     */
+    const focusDansUnChapitre = () => {
+      const el = document.activeElement
+      return Boolean(el && el !== document.body && el.closest?.('[data-chapitre]'))
+    }
+
+    const piloter = (t) => {
+      pilote = requestAnimationFrame(piloter)
+      // Plafonné : au retour d'un onglet en arrière-plan, le pas couvrirait
+      // des minutes.
+      const dt = Math.min((t - precedent) / 1000, 0.1)
+      precedent = t
+
+      const libre =
+        !pauseRef.current &&
+        premiereImage > 0 &&
+        t - premiereImage > AUTOPILOTE.departApres * 1000 &&
+        t - derniereInteraction > AUTOPILOTE.repriseApres * 1000 &&
+        document.visibilityState === 'visible' &&
+        !focusDansUnChapitre()
+      const lieu = libre ? dansLeVol() : null
+
+      if (!lieu) {
+        if (window.__belyaAutopilote) window.__belyaAutopilote = false
+        position = null
+        posee = null
+        return
+      }
+
+      const { s, course, fait } = lieu
+      if (position === null) position = (fait / course) * total
+
+      // Comme une vidéo qui charge : tant que l'image visée n'est pas
+      // décodée, on n'avance pas. Sur une connexion lente le film marque
+      // une pause, plutôt que de défiler en montrant une image voisine
+      // figée — ce qui ressemblerait à un film cassé.
+      const n = Math.min(images - 1, Math.round(tempsA(plages, position) * fps))
+      if (!sequence.images.has(n)) return
+
+      position = avancer(plages, position, dt, AUTOPILOTE)
+      const haut = window.scrollY + s.getBoundingClientRect().top
+      poser(haut + (position / total) * course)
+    }
+
+    // Les gestes qui rendent la main. `mousedown` couvre la barre de
+    // défilement tirée à la souris, qui n'émet ni molette ni touche.
+    const GESTES = ['wheel', 'touchstart', 'touchmove', 'keydown', 'mousedown']
+
+    commandes.current = {
+      // Après un appui sur Reprendre : le clic lui-même a compté comme un
+      // geste, on l'efface pour repartir tout de suite.
+      reprendre() {
+        derniereInteraction = -Infinity
+        position = null
+      },
+      // Sur la dernière image : retour à la première, et le film repart.
+      // La scène est collée aux deux bouts du vol, donc rien ne saute à
+      // l'œil — seule l'image change.
+      revoir() {
+        const s = section.current
+        if (!s) return
+        derniereInteraction = -Infinity
+        position = 0
+        poser(window.scrollY + s.getBoundingClientRect().top)
+      },
+    }
+
     dimensionner()
     rendre()
-    window.addEventListener('scroll', planifierRendu, { passive: true })
+    window.addEventListener('scroll', surDefilement, { passive: true })
     window.addEventListener('resize', auRedimensionnement)
+    for (const geste of GESTES) window.addEventListener(geste, lacher, { passive: true })
+    pilote = requestAnimationFrame(piloter)
 
     return () => {
-      window.removeEventListener('scroll', planifierRendu)
+      window.removeEventListener('scroll', surDefilement)
       window.removeEventListener('resize', auRedimensionnement)
+      for (const geste of GESTES) window.removeEventListener(geste, lacher)
       if (demande) cancelAnimationFrame(demande)
+      cancelAnimationFrame(pilote)
+      window.__belyaAutopilote = false
+      commandes.current = { reprendre() {}, revoir() {} }
       sequence.fermer()
       setFilmPret(false)
     }
   }, [mode, piste, fps, images, portrait, plages, total])
+
+  const basculerAutopilote = () => {
+    if (auBout) {
+      pauseRef.current = false
+      setPause(false)
+      commandes.current.revoir()
+    } else if (pause) {
+      pauseRef.current = false
+      setPause(false)
+      commandes.current.reprendre()
+    } else {
+      pauseRef.current = true
+      setPause(true)
+    }
+  }
+
+  const { Icone: IconeBouton, libelle: libelleBouton } = auBout
+    ? { Icone: RotateCcw, libelle: 'Revoir' }
+    : pause
+      ? { Icone: Play, libelle: 'Reprendre' }
+      : { Icone: Pause, libelle: 'Pause' }
 
   const eviter = (e) => {
     e.preventDefault()
@@ -369,17 +576,29 @@ export default function VolSalon() {
         />
         <div className="voile-vol absolute inset-0" aria-hidden="true" />
 
-        {/* Avant les chapitres dans le DOM : le lien d'évitement est la
-            première chose qu'on atteint au clavier. */}
-        <div className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-between gap-4 px-6 pb-4 sm:px-10 lg:px-16">
+        {/* Avant les chapitres dans le DOM : la pause et le lien
+            d'évitement sont les premières choses qu'on atteint au
+            clavier — WCAG demande que l'arrêt d'un mouvement soit
+            accessible avant le contenu qui bouge. */}
+        <div className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-between gap-4 px-6 pb-2 sm:px-10 lg:px-16">
           <p className="legende text-creme/55">{CREDIT_VOL}</p>
-          <a
-            href={`#${ANCRE_APRES_VOL}`}
-            onClick={eviter}
-            className="legende lift font-semibold text-creme/80 underline decoration-creme/30 underline-offset-4 hover:text-creme"
-          >
-            Passer la visite
-          </a>
+          <div className="flex items-center gap-5">
+            <button
+              type="button"
+              onClick={basculerAutopilote}
+              className="legende lift flex min-h-[44px] items-center gap-2 font-semibold text-creme/80 hover:text-creme"
+            >
+              <IconeBouton size={14} strokeWidth={2.5} aria-hidden="true" />
+              {libelleBouton}
+            </button>
+            <a
+              href={`#${ANCRE_APRES_VOL}`}
+              onClick={eviter}
+              className="legende lift flex min-h-[44px] items-center font-semibold text-creme/80 underline decoration-creme/30 underline-offset-4 hover:text-creme"
+            >
+              Passer la visite
+            </a>
+          </div>
         </div>
 
         {ORDRE.map((cle, i) => (
@@ -388,6 +607,7 @@ export default function VolSalon() {
             ref={(el) => {
               blocs.current[cle] = el
             }}
+            data-chapitre={cle}
             className="pointer-events-none absolute inset-0 flex items-end will-change-transform lg:items-center"
             style={{ opacity: i === 0 ? 1 : 0, visibility: i === 0 ? 'visible' : 'hidden' }}
             inert={i === 0 ? undefined : true}
